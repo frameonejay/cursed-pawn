@@ -2668,6 +2668,8 @@
 
   function renderHUD() {
     $('hud-night').textContent = S.night;
+    const nightMax = $('hud-night-max');
+    if (nightMax) nightMax.textContent = S.endless ? '∞' : '5';
     $('hud-round').textContent = S.roundNum;
     const type = (currentRound() && currentRound().type) || 'normal';
     const badge = $('hud-type');
