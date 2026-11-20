@@ -1276,7 +1276,7 @@ kbd {
     gap: 4px;
   }
   .title-kicker { font-size: 9.5px; letter-spacing: 0.3em; margin-bottom: 6px; }
-  .title-logo { font-size: clamp(30px, 10.8vw, 56px); letter-spacing: 0.02em; }
+  .title-logo { font-size: clamp(28px, 10.2vw, 54px); letter-spacing: 0.02em; }
   .title-logo span { letter-spacing: 0.04em; }
   .title-sub { font-size: 19px; letter-spacing: 0.4em; margin: 6px 0 0; }
   .title-tag { font-size: 13px; line-height: 1.65; margin: 10px 0 20px; max-width: none; }
