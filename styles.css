@@ -513,7 +513,7 @@ p { margin: 0; }
 .night-track { display: flex; align-items: center; gap: 5px; opacity: 0.9; }
 .nt-pip {
   width: 22px; height: 4px; border-radius: 2px;
-  background: rgba(236, 224, 200, 0.12);
+  background: rgba(236, 224, 200, 0.24);
   position: relative;
   transition: background 0.3s ease;
 }
