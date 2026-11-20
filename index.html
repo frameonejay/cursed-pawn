@@ -36,12 +36,29 @@
         </button>
       </div>
 
+      <!-- 승천 단계 선택 -->
+      <div class="title-ascension">
+        <div class="ta-head">
+          <span class="ta-title" data-i18n="title.ascension">승천 단계</span>
+          <span class="ta-hint" id="asc-hint">A0</span>
+        </div>
+        <div class="asc-chips" id="asc-chips"></div>
+        <div class="asc-desc" id="asc-desc"></div>
+      </div>
+
+      <div class="title-menu">
+        <button id="btn-title-codex" class="chip-btn" data-i18n="title.codex">유물 도감</button>
+        <button id="btn-title-ach" class="chip-btn" data-i18n="title.achievements">업적</button>
+        <button id="btn-title-settings" class="chip-btn" data-i18n="title.settings">설정</button>
+      </div>
+
       <div class="title-best" id="title-best"><!-- JS --></div>
+      <div class="title-progress" id="title-progress"><!-- JS --></div>
 
       <div class="title-tools">
         <button id="btn-title-lang" class="chip-btn" title="Language">한국어 / EN</button>
         <button id="btn-title-sound" class="chip-btn" title="Sound">♪ ON</button>
-        <span class="title-version">v0.1.0 · PROLOGUE BUILD</span>
+        <span class="title-version" id="title-version">v1.2.0 · STEAM BUILD</span>
       </div>
     </div>
 
@@ -72,6 +89,8 @@
         <span class="hud-dot">·</span>
         <b id="hud-round">1</b>
         <span class="hud-label" data-i18n="hud.roundSuffix">라운드</span>
+        <span class="hud-badge hidden" id="hud-ascension">A0</span>
+        <span class="hud-badge endless hidden" id="hud-endless" data-i18n="title.endless">엔드리스</span>
       </div>
 
       <div class="hud-progress">
@@ -101,6 +120,9 @@
       </div>
 
       <div class="hud-tools">
+        <button id="btn-codex" class="icon-btn" title="Compendium / 도감">❖</button>
+        <button id="btn-ach" class="icon-btn" title="Achievements / 업적">🏆</button>
+        <button id="btn-settings" class="icon-btn" title="Settings / 설정">⚙</button>
         <button id="btn-lang" class="icon-btn" title="Language / 언어">KO</button>
         <button id="btn-sound" class="icon-btn" title="Sound / 사운드">♪</button>
         <button id="btn-rules" class="icon-btn" title="Rulebook / 룰북">📖</button>
@@ -129,8 +151,13 @@
             <span class="panel-ic">☠</span>
             <span data-i18n="ui.curse">보스 저주</span>
           </div>
-          <div class="boss-name" id="boss-name"></div>
-          <div class="boss-desc" id="boss-desc"></div>
+          <div class="boss-inner">
+            <img class="boss-scale" id="boss-scale" src="assets/soul-scale.png" alt="">
+            <div class="boss-text">
+              <div class="boss-name" id="boss-name"></div>
+              <div class="boss-desc" id="boss-desc"></div>
+            </div>
+          </div>
         </div>
 
         <div class="panel reliquary">
@@ -262,6 +289,15 @@
       <p id="result-sub"></p>
       <div class="result-stats" id="result-stats"></div>
       <div class="result-best" id="result-best"></div>
+
+      <div class="result-endless hidden" id="result-endless">
+        <div class="re-best" id="result-endless-best"></div>
+        <div class="re-actions">
+          <button id="btn-endless-continue" class="btn btn-primary" data-i18n="endless.start">엔드리스 계속</button>
+          <button id="btn-end-run" class="btn btn-ghost" data-i18n="endless.quit">런 종료</button>
+        </div>
+      </div>
+
       <div class="result-actions">
         <button id="btn-restart" class="btn btn-primary" data-i18n="result.restart">새 계약서</button>
         <button id="btn-result-title" class="btn btn-ghost" data-i18n="result.title">타이틀로</button>
@@ -353,6 +389,113 @@
     </div>
   </div>
 
+  <!-- ══════════════════════════ 도감 (Compendium) ══════════════════════════ -->
+  <div id="modal-codex" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="codex-modal">
+      <header class="codex-head">
+        <div class="codex-title-wrap">
+          <h2 data-i18n="codex.title">유물 도감</h2>
+          <p class="codex-sub" data-i18n="codex.sub">수집한 유물 · 부적 · 저주 · 승천 계약</p>
+        </div>
+        <div class="codex-head-right">
+          <span class="codex-count" id="codex-count"></span>
+          <button id="btn-close-codex" class="icon-btn">✕</button>
+        </div>
+      </header>
+      <div class="codex-tabs" id="codex-tabs">
+        <button class="codex-tab is-active" data-tab="relics" data-i18n="codex.relics">유물</button>
+        <button class="codex-tab" data-tab="charms" data-i18n="codex.charms">부적</button>
+        <button class="codex-tab" data-tab="curses" data-i18n="codex.curses">보스 저주</button>
+        <button class="codex-tab" data-tab="ascensions" data-i18n="codex.ascensions">승천</button>
+      </div>
+      <div class="codex-filters" id="codex-filters">
+        <button class="codex-filter is-active" data-rarity="all" data-i18n="codex.filterAll">전체</button>
+        <button class="codex-filter" data-rarity="common" data-i18n="rarity.common">일반</button>
+        <button class="codex-filter" data-rarity="uncommon" data-i18n="rarity.uncommon">고급</button>
+        <button class="codex-filter" data-rarity="rare" data-i18n="rarity.rare">희귀</button>
+        <button class="codex-filter" data-rarity="legendary" data-i18n="rarity.legendary">전설</button>
+        <button class="codex-filter" data-rarity="cursed" data-i18n="rarity.cursed">저주</button>
+      </div>
+      <div class="codex-body" id="codex-body"></div>
+      <footer class="codex-foot">
+        <img class="codex-scale" src="assets/soul-scale.png" alt="">
+        <p data-i18n="codex.sub">수집한 유물 · 부적 · 저주 · 승천 계약</p>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ 업적 ══════════════════════════ -->
+  <div id="modal-ach" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="ach-modal">
+      <header class="ach-head">
+        <div>
+          <h2 data-i18n="ach.title">업적</h2>
+          <p class="ach-sub" data-i18n="ach.sub">전당포의 기록—— 달성할수록 계약서가 두꺼워집니다.</p>
+        </div>
+        <button id="btn-close-ach" class="icon-btn">✕</button>
+      </header>
+      <div class="ach-summary" id="ach-summary"></div>
+      <div class="ach-body" id="ach-body"></div>
+      <footer class="ach-foot">
+        <span id="ach-steam" class="ach-steam"></span>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ 설정 ══════════════════════════ -->
+  <div id="modal-settings" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="settings-modal">
+      <header class="settings-head">
+        <h2 data-i18n="settings.title">설정</h2>
+        <button id="btn-close-settings" class="icon-btn">✕</button>
+      </header>
+      <div class="settings-body">
+        <div class="set-row">
+          <div class="set-label">
+            <b data-i18n="settings.bgm">배경 음악 (BGM)</b>
+            <small>Dark Jazz · procedural</small>
+          </div>
+          <button id="btn-bgm" class="set-toggle">ON</button>
+        </div>
+        <div class="set-row">
+          <div class="set-label">
+            <b data-i18n="settings.sfx">효과음 (SFX)</b>
+            <small>Dice · Chips · Relic</small>
+          </div>
+          <button id="btn-sfx" class="set-toggle">ON</button>
+        </div>
+        <div class="set-row set-volume">
+          <div class="set-label">
+            <b data-i18n="settings.master">마스터 볼륨</b>
+            <small id="vol-value">85%</small>
+          </div>
+          <input id="vol-slider" type="range" min="0" max="100" step="5" value="85" aria-label="volume">
+        </div>
+        <div class="set-row">
+          <div class="set-label">
+            <b data-i18n="settings.language">언어</b>
+            <small>Language</small>
+          </div>
+          <div class="set-langs">
+            <button id="btn-set-ko" class="set-toggle">한국어</button>
+            <button id="btn-set-en" class="set-toggle">English</button>
+          </div>
+        </div>
+        <div class="set-row">
+          <div class="set-label">
+            <b data-i18n="settings.reset">기록 초기화</b>
+            <small data-i18n="settings.resetConfirm">저장된 기록과 업적을 모두 지웁니다.</small>
+          </div>
+          <button id="btn-reset-save" class="set-toggle danger">RESET</button>
+        </div>
+        <div class="set-foot">
+          <span id="settings-steam" class="set-steam">Steam offline</span>
+          <span id="settings-version" class="set-version">v1.2.0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ══════════════════════════ 연출 레이어 ══════════════════════════ -->
   <div id="score-popup" class="score-popup hidden">
     <div class="sp-hand">
@@ -385,11 +528,14 @@
   </div>
 
   <div id="floaters" class="floaters"></div>
+  <div id="particles" class="particles"></div>
+  <div id="ach-toast" class="ach-toast hidden"></div>
   <div id="tooltip" class="tooltip hidden"></div>
   <div id="toast" class="toast hidden"></div>
 
 </div>
 
+<script src="js/i18n.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/game.js"></script>
 </body>

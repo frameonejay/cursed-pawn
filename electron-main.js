@@ -1,47 +1,58 @@
 'use strict';
 
 /* ══════════════════════════════════════════════════════════════════════════
-   CURSED PAWN: 영혼 전당포 — Electron entry point
-   Steam 데스크톱 빌드(1280x800, 다크 배경) + steamworks.js 연동 포인트.
+   CURSED PAWN: 영혼 전당포 — Electron entry point (Steam build)
 
    · app:// 커스텀 프로토콜로 index.html 을 로드한다. (file:// 이 아니라)
-     → data/game_data.json 을 fetch 로 정상 로드할 수 있고, CSP·localStorage 도
-       표준 origin(app://local)으로 동작한다.
-     → index.html 을 브라우저에서 직접 열면(file://) fetch 가 막혀 내장
-       fallback 데이터로 완전히 동일하게 플레이된다.
+     → data/game_data.json 을 fetch 로 정상 로드하고, CSP·localStorage 도
+       표준 origin(app://local)에서 동작한다.
+   · 창 크기 1280×800(최소 1080×680), F11 전체화면, 개발 빌드에서만 F12.
+   · Steamworks.js: steam_appid.txt 가 있거나 CP_STEAM=1 이면 자동으로 켜진다.
    ══════════════════════════════════════════════════════════════════════════ */
 
+const fs = require('fs');
 const path = require('path');
 const { pathToFileURL } = require('url');
 const { app, BrowserWindow, Menu, ipcMain, shell, protocol, net } = require('electron');
 
-// 오디오 자동재생 정책: Electron(로컬 앱)에서는 첫 클릭 전에도 신디사이저를 준비.
+// 오디오 자동재생 정책: 로컬 앱에서는 첫 클릭 전에도 신디사이저를 준비한다.
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
-/* ─────────────── Steamworks.js 연동 포인트 ───────────────
+const APP_ID = 'com.frameone.cursedpawn';
+const APP_TITLE = 'CURSED PAWN: 영혼 전당포';
+
+/* ─────────────── Steamworks.js 연동 ───────────────
    1) `npm i steamworks.js`
-   2) 프로젝트 루트(개발) 또는 실행 파일 옆(배포)에 `steam_appid.txt` 배치
-   3) 아래 STEAM_ENABLED = true 로 전환 후 Steam 클라이언트를 켠 상태에서 실행
-   4) 업적 예시:
-        steamworks.achievement.activate('ACH_FIRST_CONTRACT');
-        steamworks.achievement.activate('ACH_NIGHT_5');
-   5) 렌더러(게임 화면)는 preload.js 의 contextBridge 로 노출된
-      `window.cpSteam` 을 통해서만 Steam 기능을 호출한다. (nodeIntegration: false 유지)
-   ───────────────────────────────────────────────────────── */
-const STEAM_ENABLED = false;
+   2) 프로젝트 루트(개발) 또는 실행 파일 옆(배포)에 steam_appid.txt 배치
+      (또는 환경변수 CP_STEAM=1)
+   3) Steam 클라이언트를 켠 상태에서 실행 → 아래 초기화가 자동으로 켜진다
+   4) 업적 API 이름은 렌더러가 'ACH_<업적ID 대문자>' 로 보낸다
+      (예: first_contract → ACH_FIRST_CONTRACT). Steamworks 파트너 사이트에도
+      같은 API 이름으로 업적을 등록해야 한다.
+   ──────────────────────────────────────────────── */
+function steamWanted() {
+  if (process.env.CP_STEAM === '1') return true;
+  const candidates = [
+    path.join(__dirname, 'steam_appid.txt'),
+    path.join(path.dirname(app.getPath('exe')), 'steam_appid.txt')
+  ];
+  return candidates.some(p => { try { return fs.existsSync(p); } catch (e) { return false; } });
+}
 
 let steamworks = null;
+let steamReady = false;
 
 function initSteam() {
-  if (!STEAM_ENABLED) {
-    console.log('[steam] disabled (set STEAM_ENABLED = true to enable)');
-    return;
+  if (!steamWanted()) {
+    console.log('[steam] disabled (steam_appid.txt 없음 / CP_STEAM!=1)');
+    return false;
   }
   try {
     // eslint-disable-next-line global-require
     steamworks = require('steamworks.js');
-    const client = steamworks.init(); // steam_appid.txt 의 AppID 사용
-    console.log('[steam] initialized:', client && client.steamId ? 'ok' : 'ok');
+    steamworks.init(); // steam_appid.txt 의 AppID 사용
+    steamReady = true;
+    console.log('[steam] initialized');
 
     ipcMain.handle('cp:achievement', (_event, apiName) => {
       try {
@@ -54,7 +65,7 @@ function initSteam() {
 
     ipcMain.handle('cp:stat', (_event, name, value) => {
       try {
-        steamworks.stats.setInt(String(name), Number(value) || 0);
+        steamworks.stats.setInt(String(name), Math.round(Number(value) || 0));
         steamworks.stats.store();
         return true;
       } catch (err) {
@@ -62,9 +73,23 @@ function initSteam() {
         return false;
       }
     });
+
+    ipcMain.handle('cp:stat-add', (_event, name, delta) => {
+      try {
+        const current = steamworks.stats.getInt(String(name)) || 0;
+        steamworks.stats.setInt(String(name), current + Math.round(Number(delta) || 0));
+        steamworks.stats.store();
+        return true;
+      } catch (err) {
+        console.warn('[steam] stat-add failed:', name, err.message);
+        return false;
+      }
+    });
   } catch (err) {
     console.warn('[steam] unavailable:', err.message);
+    steamReady = false;
   }
+  return steamReady;
 }
 
 /* ─────────────── app:// 프로토콜 (game_data.json fetch 지원) ─────────────── */
@@ -140,7 +165,7 @@ function createWindow() {
     minWidth: 1080,
     minHeight: 680,
     backgroundColor: '#0a0705',
-    title: 'CURSED PAWN: 영혼 전당포',
+    title: APP_TITLE,
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
@@ -149,7 +174,8 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: false,
       backgroundThrottling: false,
-      devTools: !app.isPackaged
+      devTools: !app.isPackaged,
+      additionalArguments: steamReady ? ['--cp-steam=1'] : []
     }
   });
 
@@ -189,18 +215,37 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(() => {
-  if (process.platform === 'win32') app.setAppUserModelId('com.frameone.cursedpawn');
-
-  registerAppProtocol();
-  initSteam();
-  createWindow();
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+// 한 번에 하나의 인스턴스만 (Steam 오버레이·클라우드 저장 충돌 방지)
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
   });
-});
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
+  app.whenReady().then(() => {
+    if (process.platform === 'win32') app.setAppUserModelId(APP_ID);
+
+    registerAppProtocol();
+    initSteam();
+    createWindow();
+
+    ipcMain.handle('cp:info', () => ({
+      version: app.getVersion(),
+      platform: process.platform,
+      steam: steamReady
+    }));
+
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
+  });
+
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit();
+  });
+}

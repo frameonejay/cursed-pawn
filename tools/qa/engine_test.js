@@ -39,15 +39,15 @@ function fetchOk() {
   if (!CP) { print(); return; }
   check('A2: fetch 실패 시 fallback 데이터 사용', CP.dataSource() === 'fallback', CP.dataSource());
   check('A3: 손패 9종 로드', CP.data.hands.length === 9, CP.data.hands.length);
-  check('A4: 유물 24종 로드', CP.data.relics.length === 24, CP.data.relics.length);
-  check('A5: 부적 8종 로드', CP.data.charms.length === 8, CP.data.charms.length);
+  check('A4: 유물 50종 로드', CP.data.relics.length === 50, CP.data.relics.length);
+  check('A5: 부적 16종 로드', CP.data.charms.length === 16, CP.data.charms.length);
   check('A6: 라운드 15개', CP.rounds.length === 15, CP.rounds.length);
 
   // 런 시작
   CP.startRun();
   await sleep(60);
   check('A7: 런 시작 시 밤1/라운드1/목표150', S.night === 1 && S.roundNum === 1 && S.target === 150, JSON.stringify({ n: S.night, r: S.roundNum, t: S.target }));
-  check('A8: 시작 골드 4 (meta)', S.gold === 4, S.gold);
+  check('A8: 시작 골드 5 (meta)', S.gold === 5, S.gold);
   check('A9: 시작 핸드 4', S.hands === 4, S.hands);
   check('A10: 시작 리롤 2', S.rerolls === 2, S.rerolls);
   check('A11: 기회 시작 시 주사위 5개 대기', S.dice.length === 5 && S.dice.every(d => d.value === 0), JSON.stringify(S.dice));
@@ -224,7 +224,7 @@ function fetchOk() {
   CP.setDice([5, 5, 5, 5, 5]);
   CP.scoreSelected();
   await sleep(2600);
-  check('C9: tax_gold 클리어 후 골드 10+6-3=13', S.gold === 13, S.gold);
+  check('C9: tax_gold 클리어 후 골드 10+8-3=15', S.gold === 15, S.gold);
   check('C10: 클리어 후 상점 오픈', !A.document.getElementById('overlay-shop').classList.contains('hidden'), A.document.getElementById('overlay-shop').className);
 
   /* ─────────────────────── 부적 ─────────────────────── */
@@ -234,10 +234,13 @@ function fetchOk() {
   const CP2 = B.sandbox.CP;
   const S2 = CP2.state;
   check('D0: fetch 성공 시 game_data.json 사용', CP2.dataSource() === 'json', CP2.dataSource());
-  check('D0b: JSON 손패 9종/유물 24/라운드 15', CP2.data.hands.length === 9 && CP2.data.relics.length === 24 && CP2.rounds.length === 15,
-    `${CP2.data.hands.length}/${CP2.data.relics.length}/${CP2.rounds.length}`);
-  check('D0c: JSON 목표 커브 150/400/330 … 4900/5200/6000',
+  check('D0b: JSON 손패 9종/유물 50/부적 16/라운드 15',
+    CP2.data.hands.length === 9 && CP2.data.relics.length === 50 && CP2.data.charms.length === 16 && CP2.rounds.length === 15,
+    `${CP2.data.hands.length}/${CP2.data.relics.length}/${CP2.data.charms.length}/${CP2.rounds.length}`);
+  check('D0c: JSON 목표 커브 150/400/330 … 4900/5200/6000 (밤2·3 −10%)',
     CP2.rounds[0].target_score === 150 && CP2.rounds[1].target_score === 400 && CP2.rounds[2].target_score === 330 &&
+    CP2.rounds[3].target_score === 1260 && CP2.rounds[4].target_score === 1530 && CP2.rounds[5].target_score === 1170 &&
+    CP2.rounds[6].target_score === 2610 && CP2.rounds[7].target_score === 2790 &&
     CP2.rounds[12].target_score === 4900 && CP2.rounds[13].target_score === 5200 && CP2.rounds[14].target_score === 6000,
     CP2.rounds.map(r => r.target_score).join('/'));
   check('D0d: JSON 보스 핸드 3 / 일반 4',
@@ -341,8 +344,13 @@ function fetchOk() {
   CP3.setDice([4, 4, 4, 4, 4]);
   CP3.scoreSelected();
   await sleep(3400);
-  check('H3: 마지막 라운드 클리어 → 승리', S3.phase === 'won', S3.phase);
-  check('H4: 승리 결과 화면 표시', !C.document.getElementById('overlay-result').classList.contains('hidden'));
+  check('H3: 마지막 라운드 클리어 → 승리·엔드리스 선택', S3.phase === 'endlessChoice', S3.phase);
+  check('H3b: 승리 결과 화면에 엔드리스 선택 버튼', !C.document.getElementById('overlay-result').classList.contains('hidden')
+    && !C.document.getElementById('result-endless').classList.contains('hidden'));
+  click(C.document.getElementById('btn-end-run'));
+  check('H3c: "런 종료" → 타이틀 복귀', S3.phase === 'won' && S3.screen === 'title', `${S3.phase}/${S3.screen}`);
+  check('H4: 런 종료 후 결과 모달이 닫히고 타이틀 표시', C.document.getElementById('overlay-result').classList.contains('hidden')
+    && C.document.getElementById('screen-title').classList.contains('is-active'));
 
   // 유물 판매 (툴팁 → 확인 모달)
   CP3.startRun();
@@ -403,7 +411,7 @@ function fetchOk() {
   await sleep(40);
 
   let guard = 0;
-  while (S5.phase !== 'won' && S5.phase !== 'over' && guard < 20) {
+  while (S5.phase !== 'won' && S5.phase !== 'over' && S5.phase !== 'endlessChoice' && guard < 20) {
     guard += 1;
     if (S5.phase === 'idle') CP5.roll();
     S5.score = S5.target - 1;           // 매 라운드 클리어 강제
@@ -416,11 +424,359 @@ function fetchOk() {
       await sleep(140);
     }
   }
-  check('K1: 15라운드 완주 → 승리', S5.phase === 'won', `${S5.phase} / round ${S5.roundIndex}`);
+  check('K1: 15라운드 완주 → 승리(엔드리스 선택)', S5.phase === 'endlessChoice' || S5.phase === 'won', `${S5.phase} / round ${S5.roundIndex}`);
   check('K2: 최종 밤 5 · 라운드 3', S5.night === 5 && S5.roundNum === 3, `${S5.night}-${S5.roundNum}`);
   check('K3: 라운드 전환 15회 이내 (무한루프 없음)', guard <= 15, guard);
   const savedE = JSON.parse(E.storage.getItem('cursedPawn.save.v1') || '{}');
   check('K4: 완주 기록 저장 (밤 5)', savedE.best && savedE.best.night === 5 && savedE.best.wins >= 1, JSON.stringify(savedE.best));
+
+  /* ═══════════════════════════════════════════════════════════════════
+     신규 기능 검증 (v1.1 데이터 · 엔진 통합 · 승천 · 엔드리스 · 업적 · i18n)
+     ═══════════════════════════════════════════════════════════════════ */
+
+  /* ─────────── L. 신규 조건 5종 + 확장 표기 ─────────── */
+  const L = buildSandbox({ fetch: fetchOk });
+  runGame(L.sandbox);
+  await sleep(150);
+  const CPL = L.sandbox.CP;
+  const SL = CPL.state;
+  const lctx = (over) => Object.assign({ vals: [1, 2, 3, 4, 5], handId: 'high_card', handRank: 0, handsLeft: 2, gold: 0, roundType: 'normal' }, over);
+
+  check('L1: large_straight 1-5 true', CPL.conditionMet('large_straight', lctx({ vals: [1, 2, 3, 4, 5] })) === true);
+  check('L2: large_straight 2-6 true', CPL.conditionMet('large_straight', lctx({ vals: [2, 3, 4, 5, 6] })) === true);
+  check('L3: large_straight 1,2,3,4,6 false', CPL.conditionMet('large_straight', lctx({ vals: [1, 2, 3, 4, 6] })) === false);
+  check('L4: sum_at_most_15 15 true', CPL.conditionMet('sum_at_most_15', lctx({ vals: [1, 2, 3, 4, 5] })) === true);
+  check('L5: sum_at_most_15 16 false', CPL.conditionMet('sum_at_most_15', lctx({ vals: [3, 4, 5, 1, 3] })) === false);
+  check('L6: sum_at_most_14 14 true / 15 false',
+    CPL.conditionMet('sum_at_most_14', lctx({ vals: [2, 2, 3, 3, 4] })) === true &&
+    CPL.conditionMet('sum_at_most_14', lctx({ vals: [1, 2, 3, 4, 5] })) === false);
+  check('L7: sum_at_least_22 22 true / 21 false',
+    CPL.conditionMet('sum_at_least_22', lctx({ vals: [6, 5, 5, 5, 1] })) === true &&
+    CPL.conditionMet('sum_at_least_22', lctx({ vals: [6, 5, 5, 4, 1] })) === false);
+  check('L8: boss_round (boss/normal)',
+    CPL.conditionMet('boss_round', lctx({ roundType: 'boss' })) === true &&
+    CPL.conditionMet('boss_round', lctx({ roundType: 'normal' })) === false);
+  check('L9: six_count_2 / three_present / even_count_4',
+    CPL.conditionMet('six_count_2', lctx({ vals: [6, 6, 1, 2, 3] })) === true &&
+    CPL.conditionMet('three_present', lctx({ vals: [3, 1, 2, 5, 4] })) === true &&
+    CPL.conditionMet('even_count_4', lctx({ vals: [2, 4, 6, 2, 1] })) === true &&
+    CPL.conditionMet('even_count_4', lctx({ vals: [2, 4, 3, 5, 1] })) === false);
+  check('L10: four_kind_or_better / yahtzee_or_better',
+    CPL.conditionMet('four_kind_or_better', lctx({ handId: 'four_kind', handRank: 7 })) === true &&
+    CPL.conditionMet('four_kind_or_better', lctx({ handId: 'full_house', handRank: 6 })) === false &&
+    CPL.conditionMet('yahtzee_or_better', lctx({ handId: 'yahtzee', handRank: 8 })) === true);
+
+  /* ─────────── M. 신규 유물 효과 6종 ─────────── */
+  CPL.startRun();
+  await sleep(40);
+  CPL.addRelic('reroll_whisper');            // 리롤 2회 → 칩 +36
+  CPL.setDice([3, 3, 1, 2, 4]);
+  let bdL = CPL.computeScore('one_pair');
+  check('M1: add_chips_per_reroll (10+18×2)×2=92', bdL && bdL.total === 92, bdL && bdL.total);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addRelic('lantern_of_hands');          // 남은 핸드 4 → 배수 +12
+  CPL.setDice([3, 3, 1, 2, 4]);
+  bdL = CPL.computeScore('one_pair');
+  check('M2: add_mult_per_hands_left 10×(2+3×4)=140', bdL && bdL.total === 140, bdL && bdL.total);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addRelic('small_purse');               // 골드 20 → 8×(20/5)=32 칩
+  SL.gold = 20;
+  CPL.setDice([3, 3, 1, 2, 4]);
+  bdL = CPL.computeScore('one_pair');
+  check('M3: add_chips_per_gold (10+32)×2=84', bdL && bdL.total === 84, bdL && bdL.total);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addRelic('charm_tithe');               // 부적 3개 → 배수 +15
+  CPL.addCharm('soul_flask');
+  CPL.addCharm('ash_bandage');
+  CPL.addCharm('bone_pin');
+  CPL.setDice([3, 3, 1, 2, 4]);
+  bdL = CPL.computeScore('one_pair');
+  check('M4: add_mult_per_charm 10×(2+5×3)=170', bdL && bdL.total === 170, bdL && bdL.total);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addRelic('interest_book');             // 클리어 시 골드 20 → +2
+  CPL.gotoRound(0);
+  await sleep(40);
+  SL.gold = 20;
+  SL.score = SL.target - 1;
+  CPL.setDice([5, 5, 5, 5, 5]);
+  CPL.scoreSelected();
+  await sleep(2600);
+  check('M5: interest_gold 클리어 골드 20+3+2=25', SL.gold === 25, SL.gold);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addRelic('haggler_bill');              // 상점 25% 할인
+  CPL.setDice([3, 3, 1, 2, 4]);
+  check('M6: shop_discount ceil(10×0.75)=8', CPL.shopPrice({ cost: 10 }) === 8, CPL.shopPrice({ cost: 10 }));
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addRelic('long_road');                 // 라지 스트레이트 ×1.55
+  CPL.setDice([1, 2, 3, 4, 5]);
+  bdL = CPL.computeScore('large_straight');
+  check('M7: long_road 160×1.55=248', bdL && bdL.total === 248, bdL && bdL.total);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addRelic('the_house_always_wins');     // 전설 ×1.8
+  CPL.setDice([3, 3, 1, 2, 4]);
+  bdL = CPL.computeScore('one_pair');
+  check('M8: legendary the_house_always_wins 20×1.8=36', bdL && bdL.total === 36, bdL && bdL.total);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addRelic('soul_auctioneer');           // 골드 30+ ×1.5
+  SL.gold = 30;
+  CPL.setDice([3, 3, 1, 2, 4]);
+  bdL = CPL.computeScore('one_pair');
+  check('M9: soul_auctioneer 골드30 → 20×1.5=30', bdL && bdL.total === 30, bdL && bdL.total);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addRelic('heavy_pip_stone');           // 합 22+ 칩 +110
+  CPL.setDice([6, 6, 6, 6, 1]);
+  bdL = CPL.computeScore('four_kind');
+  check('M10: heavy_pip_stone (60+110)×7=1190', bdL && bdL.total === 1190, bdL && bdL.total);
+
+  /* ─────────── N. 신규 부적 7종 ─────────── */
+  CPL.startRun();
+  await sleep(40);
+  CPL.addCharm('ash_bandage');               // temp_chips +60
+  CPL.setDice([3, 3, 1, 2, 4]);
+  click(L.document.getElementById('charm-slots').querySelectorAll('.charm-slot')[0]);
+  bdL = CPL.computeScore('one_pair');
+  check('N1: temp_chips (10+60)×2=140', bdL && bdL.total === 140, bdL && bdL.total);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addCharm('bone_pin');                  // hold_dice
+  CPL.setDice([2, 3, 4, 5, 6]);
+  click(L.document.getElementById('charm-slots').querySelectorAll('.charm-slot')[0]);
+  check('N2a: hold_dice → 대상 선택 모드', SL.focusCharm === 0 && SL.focusMode === 'hold', `${SL.focusCharm}/${SL.focusMode}`);
+  click(L.document.getElementById('dice-stage').querySelectorAll('.die')[2]);
+  check('N2b: hold_dice → 선택 주사위 잠금', SL.dice[2].held === true && SL.charms.length === 0, `${SL.dice[2].held}/${SL.charms.length}`);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addCharm('six_seal');                  // set_pip 6
+  CPL.setDice([2, 3, 4, 5, 6]);
+  click(L.document.getElementById('charm-slots').querySelectorAll('.charm-slot')[0]);
+  click(L.document.getElementById('dice-stage').querySelectorAll('.die')[0]);
+  check('N3: set_pip → 눈금 6', SL.dice[0].value === 6, SL.dice[0].value);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.addCharm('parity_draught');            // 홀수 +1
+  CPL.setDice([1, 2, 3, 4, 5]);
+  click(L.document.getElementById('charm-slots').querySelectorAll('.charm-slot')[0]);
+  check('N4: parity_shift 1,3,5 → 2,4,6', SL.dice.map(d => d.value).join(',') === '2,2,4,4,6', SL.dice.map(d => d.value).join(','));
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.gotoRound(2);                          // minus_reroll
+  await sleep(40);
+  const rerollBefore = SL.rerollsMax;
+  CPL.addCharm('grave_water');
+  CPL.setDice([2, 3, 1, 5, 4]);
+  click(L.document.getElementById('charm-slots').querySelectorAll('.charm-slot')[0]);
+  check('N5: curse_soften 리롤 1→2', rerollBefore === 1 && SL.rerollsMax === 2 && SL.curseSoft === true,
+    `${rerollBefore} → ${SL.rerollsMax}`);
+
+  CPL.startRun();
+  await sleep(40);
+  CPL.gotoRound(8);                          // cap_six_to_three
+  await sleep(40);
+  CPL.setDice([6, 3, 6, 3, 6]);
+  check('N6a: 저주 상태에서 6→3 (야찌 성립)', !!CPL.computeScore('yahtzee'));
+  CPL.addCharm('iron_contract');
+  click(L.document.getElementById('charm-slots').querySelectorAll('.charm-slot')[0]);
+  check('N6b: curse_nullify → 6 유지 (야찌 불성립)', CPL.computeScore('yahtzee') === null && SL.curseNull === true);
+
+  /* 상점 무료 교체 (haggler_token) */
+  CPL.startRun();
+  await sleep(40);
+  SL.gold = 40;
+  SL.score = SL.target - 1;
+  CPL.setDice([5, 5, 5, 5, 5]);
+  CPL.scoreSelected();
+  await sleep(2600);
+  const goldAtShop = SL.gold;
+  CPL.addCharm('haggler_token');
+  const shopSlots = L.document.getElementById('charm-slots').querySelectorAll('.charm-slot');
+  CPL.activateCharm(SL.charms.findIndex(c => c.id === 'haggler_token'));
+  CPL.shopReroll();
+  check('N7: shop_free_reroll → 무료 진열 교체', SL.shopFree === 0 && SL.gold === goldAtShop,
+    `free=${SL.shopFree} gold=${goldAtShop}→${SL.gold}`);
+
+  /* ─────────── O. 신규 보스 저주 5종 modifier ─────────── */
+  CPL.startRun();
+  await sleep(40);
+  SL.mods = CPL.compileMods(['min_hand_three_kind']);
+  CPL.setDice([3, 3, 1, 2, 4]);
+  check('O1: min_hand_rank 트리플 미만 정산 불가', CPL.computeScore('one_pair') === null);
+  CPL.setDice([3, 3, 3, 2, 4]);
+  check('O1b: min_hand_rank 트리플 이상 정산 가능', !!CPL.computeScore('three_kind'));
+
+  CPL.startRun();
+  await sleep(40);
+  SL.mods = CPL.compileMods(['reroll_first_double']);
+  CPL.setDice([2, 3, 4, 5, 6]);
+  SL.rerolls = 2;
+  CPL.roll();
+  await sleep(60);
+  check('O2: first_reroll_cost 첫 리롤 2회 소모', SL.rerolls === 0, SL.rerolls);
+
+  CPL.startRun();
+  await sleep(40);
+  SL.mods = CPL.compileMods(['odd_locked']);
+  CPL.setDice([2, 3, 1, 5, 4]);
+  let diceL = L.document.getElementById('dice-stage').querySelectorAll('.die');
+  click(diceL[1]);   // 3 (홀수) — 잠김
+  check('O3a: hold_block odd → 홀수 홀드 불가', SL.dice[1].held === false);
+  click(diceL[0]);   // 2 (짝수) — 가능
+  check('O3b: hold_block odd → 짝수 홀드 가능', SL.dice[0].held === true);
+
+  CPL.startRun();
+  await sleep(40);
+  SL.mods = CPL.compileMods(['six_blind']);
+  check('O4b: six_blind 모드에서 six_present false / one_present true',
+    CPL.conditionMet('six_present', lctx({ vals: [6, 6, 2, 3, 4] })) === false &&
+    CPL.conditionMet('one_present', lctx({ vals: [6, 1, 2, 3, 4] })) === true);
+
+  CPL.startRun();
+  await sleep(40);
+  SL.mods = CPL.compileMods(['no_relic_conditions']);
+  check('O5: disable_conditions → 조건 유물 전부 false (상시는 true)',
+    CPL.conditionMet('even_count', lctx({ vals: [2, 4, 6, 2, 1] })) === false &&
+    CPL.conditionMet('always', lctx()) === true);
+
+  /* ─────────── P. 승천 (Ascension 0~5) ─────────── */
+  CPL.setAscension(3);
+  CPL.startRun();
+  await sleep(40);
+  check('P1: A3 목표 +6% (150→159)', SL.target === 159, SL.target);
+  CPL.gotoRound(2);                          // N1R3 보스 (A3는 밤3부터)
+  await sleep(40);
+  check('P2a: A3 밤1 보스 리롤 페널티 없음', SL.rerollsMax === 1, SL.rerollsMax); // minus_reroll 저주만
+  CPL.gotoRound(8);                          // N3R3 보스
+  await sleep(40);
+  check('P2b: A3 밤3 보스 리롤 −1 (2−1=1)', SL.rerollsMax === 1, SL.rerollsMax);
+
+  CPL.setAscension(5);
+  CPL.startRun();
+  await sleep(40);
+  check('P3a: A5 목표 +10% (150→165)', SL.target === 165, SL.target);
+  CPL.gotoRound(14);                         // N5R3 보스
+  await sleep(40);
+  check('P3b: A5 마지막 밤 보스 저주 2개', SL.curseIds.length === 2, SL.curseIds.join('+'));
+
+  CPL.setAscension(0);
+  CPL.startRun(0);
+  await sleep(40);
+  CPL.finishRun(true);
+  check('P4: A0 승리 → A1 해금', SL.ascensionMax === 1, SL.ascensionMax);
+
+  /* ─────────── Q. 엔드리스 (밤 6~) ─────────── */
+  const Q = buildSandbox({ fetch: fetchOk });
+  runGame(Q.sandbox);
+  await sleep(150);
+  const CPQ = Q.sandbox.CP;
+  const SQ = CPQ.state;
+  CPQ.startRun(0);
+  await sleep(40);
+  CPQ.gotoRound(14);
+  await sleep(40);
+  SQ.score = SQ.target - 1;
+  CPQ.setDice([4, 4, 4, 4, 4]);
+  CPQ.scoreSelected();
+  await sleep(2600);
+  check('Q1: 밤5 보스 격파 → 엔드리스 선택', SQ.phase === 'endlessChoice' && SQ.endlessPending === true, SQ.phase);
+  click(Q.document.getElementById('btn-endless-continue'));
+  await sleep(80);
+  check('Q2: 엔드리스 진입 → 밤 6', SQ.endless === true && SQ.night === 6, `${SQ.endless}/${SQ.night}`);
+  check('Q3: 엔드리스 라운드 3개 생성 (총 18)', CPQ.rounds.length === 18, CPQ.rounds.length);
+  check('Q4: 엔드리스 밤6 목표 6500', SQ.target === 6500, SQ.target);
+  check('Q5: 엔드리스 보스 저주 = rotation 첫 번째', CPQ.rounds[17].boss_curse_id === 'min_hand_three_kind', CPQ.rounds[17].boss_curse_id);
+  CPQ.extendEndless();
+  check('Q6: 밤7 목표 6500×1.28=8320', Math.round(6500 * 1.28) === CPQ.rounds[18].target_score, CPQ.rounds[18].target_score);
+  SQ.run.endlessNight = 8;
+  CPQ.checkAchievements('endless');
+  check('Q7: 업적 endless_8 (밤 8 도달)', !!SQ.progress.unlocked.endless_8);
+
+  /* ─────────── R. 업적 · Steam 훅 ─────────── */
+  const steamCalls = [];
+  const R = buildSandbox({ fetch: fetchOk });
+  R.sandbox.cpSteam = { available: true, achievement: (id) => { steamCalls.push(id); return Promise.resolve(true); } };
+  runGame(R.sandbox);
+  await sleep(150);
+  const CPR = R.sandbox.CP;
+  const SR = CPR.state;
+  CPR.startRun(0);
+  await sleep(40);
+  CPR.finishRun(true);
+  check('R1: 업적 first_contract 해금', !!SR.progress.unlocked.first_contract);
+  check('R2: Steamworks 업적 훅 호출', steamCalls.indexOf('ACH_FIRST_CONTRACT') >= 0, steamCalls.join(','));
+  check('R3: 업적 토스트 표시', !R.document.getElementById('ach-toast').classList.contains('hidden'));
+
+  const relicIds = CPR.data.relics.slice(0, 30).map(r => r.id);
+  relicIds.forEach(id => CPR.addRelic(id));
+  CPR.checkAchievements('collection');
+  check('R4: 유물 30종 수집 업적', SR.progress.relicSeen.length >= 30 && !!SR.progress.unlocked.relic_30,
+    SR.progress.relicSeen.length);
+
+  click(R.document.getElementById('btn-ach'));
+  const achCards = R.document.getElementById('ach-body').querySelectorAll('.ach-card');
+  check('R5: 업적 모달 15종 렌더', achCards.length === 15, achCards.length);
+
+  /* ─────────── S. i18n · 도감 · 설정 ─────────── */
+  const Sx = buildSandbox({ fetch: fetchOk });
+  runGame(Sx.sandbox);
+  await sleep(150);
+  const CPS = Sx.sandbox.CP;
+  const SS = CPS.state;
+  const i18n = Sx.sandbox.CursedI18n;
+  check('S1: CursedI18n 로드 · ko/en 각 400+ 키',
+    !!i18n && i18n.keys('ko').length >= 400 && i18n.keys('en').length >= 400,
+    i18n ? `${i18n.keys('ko').length}/${i18n.keys('en').length}` : 'none');
+  check('S2: ko/en 키 누락 0', i18n && i18n.missing('en', 'ko').length === 0 && i18n.missing('ko', 'en').length === 0,
+    i18n ? JSON.stringify(i18n.missing('en', 'ko').slice(0, 3)) : '');
+  CPS.startRun(0);
+  await sleep(40);
+  click(Sx.document.getElementById('btn-lang'));
+  check('S3: 언어 EN 실시간 전환', SS.lang === 'en' && Sx.sandbox.document.documentElement.lang === 'en');
+  check('S4: EN 데이터 텍스트 (유물명)', CPS.data.relics.find(r => r.id === 'gilded_grin').name_en === 'Gilded Grin');
+  check('S5: EN UI 라벨 (정산 내역)', Sx.document.getElementById('breakdown') != null &&
+    Sx.sandbox.CursedI18n.t('ui.breakdown') === 'Settlement', Sx.sandbox.CursedI18n.t('ui.breakdown'));
+  click(Sx.document.getElementById('btn-lang'));
+  check('S6: KO 복귀', SS.lang === 'ko');
+
+  click(Sx.document.getElementById('btn-codex'));
+  const codexCards = Sx.document.getElementById('codex-body').querySelectorAll('.codex-card');
+  check('S7: 도감 열기 → 유물 50 카드', codexCards.length === 50, codexCards.length);
+  check('S8: 도감 모달 표시', !Sx.document.getElementById('modal-codex').classList.contains('hidden'));
+  click(Sx.document.getElementById('btn-close-codex'));
+  check('S9: 도감 닫기', Sx.document.getElementById('modal-codex').classList.contains('hidden'));
+
+  click(Sx.document.getElementById('btn-settings'));
+  check('S10: 설정 모달 표시', !Sx.document.getElementById('modal-settings').classList.contains('hidden'));
+  check('S11: BGM 토글 표시', Sx.document.getElementById('btn-bgm').textContent === Sx.sandbox.CursedI18n.t('common.on'),
+    Sx.document.getElementById('btn-bgm').textContent);
+  CPS.setVolume(0.5);
+  check('S12: 볼륨 슬라이더 값 반영', Sx.document.getElementById('vol-slider').value === '50', Sx.document.getElementById('vol-slider').value);
+  check('S13: 마스터 볼륨 API 연결', Math.abs(Sx.sandbox.CPSound.getMasterVolume() - SS.volume) < 0.001,
+    Sx.sandbox.CPSound.getMasterVolume());
+  click(Sx.document.getElementById('btn-close-settings'));
+
+  check('S14: 업적 진행률 API', (() => { const st = CPS.achievementStats(); return st.total === 15 && st.pct >= 0 && st.pct <= 100; })(),
+    JSON.stringify(CPS.achievementStats()));
 
   print();
 })().catch(err => {

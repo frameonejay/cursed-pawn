@@ -2,7 +2,7 @@
   "meta": {
     "game_title_ko": "CURSED PAWN: 영혼 전당포",
     "game_title_en": "CURSED PAWN",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "locale_default": "ko",
     "locales": [
       "ko",
@@ -15,12 +15,28 @@
     "max_rerolls_per_hand": 2,
     "relic_slots": 6,
     "charm_slots": 3,
-    "start_gold": 4,
+    "start_gold": 5,
     "shop_reroll_cost": 3,
     "shop_relic_offers": 3,
     "shop_charm_offers": 2,
     "score_formula": "(base_chips + sum(relic add_chips)) * (base_mult + sum(relic add_mult)) * product(relic mul_mult)",
-    "notes": "condition 문자열은 GDD 2.5 '조건 판정 사전'과 1:1로 대응한다. 일반/정예 라운드의 boss_* 필드는 빈 문자열이다."
+    "notes": "condition/effect_type/charm_effect/boss_curse modifier 의 단일 계약은 이 파일의 'schema' 객체다. 일반/정예 라운드의 boss_* 필드는 빈 문자열이며, boss_curses[].modifier 가 엔진이 적용할 규칙이다. gold_over_15 는 기존 엔진에서 >=15 로 구현되어 있고 gold_over_N 정규식은 >N 이므로 신규 데이터는 gold_at_least_N 만 사용한다. ascensions[].active_rules 는 해당 단계에서 누적 적용되는 규칙 목록이다.",
+    "content_counts": {
+      "relics": 50,
+      "charms": 16,
+      "boss_curses": 10,
+      "ascensions": 6,
+      "achievements": 15,
+      "nights": 5
+    },
+    "rarity_weights": {
+      "common": 50,
+      "uncommon": 28,
+      "rare": 11,
+      "cursed": 6,
+      "legendary": 5
+    },
+    "balance_note": "v1.2: A0 완주율 8.8%→20%대. 밤 2·3 목표 −10%, 밤 2·3 보상 +2골드, 시작 골드 4→5."
   },
   "hands": [
     {
@@ -118,7 +134,11 @@
       "value": 18,
       "condition": "always",
       "desc_ko": "정산할 때마다 칩 +18.",
-      "desc_en": "Whenever you score, +18 Chips."
+      "desc_en": "Whenever you score, +18 Chips.",
+      "tags": [
+        "chips",
+        "always"
+      ]
     },
     {
       "id": "cracked_monocle",
@@ -132,7 +152,11 @@
       "value": 2,
       "condition": "always",
       "desc_ko": "정산할 때마다 배수 +2.",
-      "desc_en": "Whenever you score, +2 Mult."
+      "desc_en": "Whenever you score, +2 Mult.",
+      "tags": [
+        "mult",
+        "always"
+      ]
     },
     {
       "id": "bone_die",
@@ -146,7 +170,11 @@
       "value": 10,
       "condition": "always",
       "desc_ko": "핸드를 시작할 때 칩 +10 (핸드당 1회).",
-      "desc_en": "At the start of each hand, +10 Chips (once per hand)."
+      "desc_en": "At the start of each hand, +10 Chips (once per hand).",
+      "tags": [
+        "chips",
+        "on_roll"
+      ]
     },
     {
       "id": "pawn_ticket",
@@ -160,7 +188,11 @@
       "value": 2,
       "condition": "always",
       "desc_ko": "라운드를 마칠 때마다 골드 +2.",
-      "desc_en": "Gain +2 Gold at the end of every round."
+      "desc_en": "Gain +2 Gold at the end of every round.",
+      "tags": [
+        "gold",
+        "economy"
+      ]
     },
     {
       "id": "even_tally",
@@ -174,7 +206,11 @@
       "value": 30,
       "condition": "even_count",
       "desc_ko": "짝수 눈금이 3개 이상이면 칩 +30.",
-      "desc_en": "If you hold 3+ even dice, +30 Chips."
+      "desc_en": "If you hold 3+ even dice, +30 Chips.",
+      "tags": [
+        "even",
+        "chips"
+      ]
     },
     {
       "id": "odd_tally",
@@ -188,7 +224,11 @@
       "value": 4,
       "condition": "odd_count",
       "desc_ko": "홀수 눈금이 3개 이상이면 배수 +4.",
-      "desc_en": "If you hold 3+ odd dice, +4 Mult."
+      "desc_en": "If you hold 3+ odd dice, +4 Mult.",
+      "tags": [
+        "odd",
+        "mult"
+      ]
     },
     {
       "id": "ash_ring",
@@ -202,7 +242,11 @@
       "value": 3,
       "condition": "pair_or_better",
       "desc_ko": "원 페어 이상으로 정산하면 배수 +3.",
-      "desc_en": "If you score One Pair or better, +3 Mult."
+      "desc_en": "If you score One Pair or better, +3 Mult.",
+      "tags": [
+        "pair",
+        "mult"
+      ]
     },
     {
       "id": "iron_nail",
@@ -216,7 +260,11 @@
       "value": 22,
       "condition": "straight",
       "desc_ko": "스트레이트 계열로 정산하면 칩 +22.",
-      "desc_en": "If you score a Straight, +22 Chips."
+      "desc_en": "If you score a Straight, +22 Chips.",
+      "tags": [
+        "straight",
+        "chips"
+      ]
     },
     {
       "id": "wax_candle",
@@ -230,7 +278,11 @@
       "value": 20,
       "condition": "one_present",
       "desc_ko": "1 눈금이 하나라도 있으면 칩 +20.",
-      "desc_en": "If at least one die shows 1, +20 Chips."
+      "desc_en": "If at least one die shows 1, +20 Chips.",
+      "tags": [
+        "pip1",
+        "chips"
+      ]
     },
     {
       "id": "mirror_shard",
@@ -244,7 +296,11 @@
       "value": 1.15,
       "condition": "even_count",
       "desc_ko": "짝수 눈금이 3개 이상이면 배수 ×1.15.",
-      "desc_en": "If you hold 3+ even dice, ×1.15 Mult."
+      "desc_en": "If you hold 3+ even dice, ×1.15 Mult.",
+      "tags": [
+        "even",
+        "multiplier"
+      ]
     },
     {
       "id": "ashen_scale",
@@ -258,7 +314,11 @@
       "value": 1.15,
       "condition": "odd_count",
       "desc_ko": "홀수 눈금이 3개 이상이면 배수 ×1.15.",
-      "desc_en": "If you hold 3+ odd dice, ×1.15 Mult."
+      "desc_en": "If you hold 3+ odd dice, ×1.15 Mult.",
+      "tags": [
+        "odd",
+        "multiplier"
+      ]
     },
     {
       "id": "chalk_line",
@@ -272,7 +332,11 @@
       "value": 6,
       "condition": "straight",
       "desc_ko": "스트레이트 계열로 정산하면 배수 +6.",
-      "desc_en": "If you score a Straight, +6 Mult."
+      "desc_en": "If you score a Straight, +6 Mult.",
+      "tags": [
+        "straight",
+        "mult"
+      ]
     },
     {
       "id": "blood_ledger",
@@ -286,7 +350,11 @@
       "value": 6,
       "condition": "always",
       "desc_ko": "정산할 때마다 배수 +6.",
-      "desc_en": "Whenever you score, +6 Mult."
+      "desc_en": "Whenever you score, +6 Mult.",
+      "tags": [
+        "mult",
+        "always"
+      ]
     },
     {
       "id": "loaded_dice",
@@ -300,7 +368,10 @@
       "value": 1,
       "condition": "always",
       "desc_ko": "핸드마다 리롤 +1.",
-      "desc_en": "+1 Reroll per hand."
+      "desc_en": "+1 Reroll per hand.",
+      "tags": [
+        "reroll"
+      ]
     },
     {
       "id": "six_bell",
@@ -314,7 +385,11 @@
       "value": 7,
       "condition": "six_present",
       "desc_ko": "6 눈금이 하나라도 있으면 배수 +7.",
-      "desc_en": "If any die shows 6, +7 Mult."
+      "desc_en": "If any die shows 6, +7 Mult.",
+      "tags": [
+        "pip6",
+        "mult"
+      ]
     },
     {
       "id": "last_rites",
@@ -328,7 +403,11 @@
       "value": 1.25,
       "condition": "last_hand",
       "desc_ko": "라운드 마지막 핸드로 정산하면 배수 ×1.25.",
-      "desc_en": "On the final hand of the round, ×1.25 Mult."
+      "desc_en": "On the final hand of the round, ×1.25 Mult.",
+      "tags": [
+        "last_hand",
+        "multiplier"
+      ]
     },
     {
       "id": "gilded_grin",
@@ -342,7 +421,11 @@
       "value": 1.4,
       "condition": "always",
       "desc_ko": "정산할 때마다 배수 ×1.4.",
-      "desc_en": "Whenever you score, ×1.4 Mult."
+      "desc_en": "Whenever you score, ×1.4 Mult.",
+      "tags": [
+        "multiplier",
+        "always"
+      ]
     },
     {
       "id": "marble_run",
@@ -356,7 +439,11 @@
       "value": 1.3,
       "condition": "straight",
       "desc_ko": "스트레이트 계열로 정산하면 배수 ×1.3.",
-      "desc_en": "If you score a Straight, ×1.3 Mult."
+      "desc_en": "If you score a Straight, ×1.3 Mult.",
+      "tags": [
+        "straight",
+        "multiplier"
+      ]
     },
     {
       "id": "coin_purse",
@@ -370,7 +457,11 @@
       "value": 1.3,
       "condition": "gold_over_15",
       "desc_ko": "골드가 15 이상이면 배수 ×1.3.",
-      "desc_en": "If you hold 15+ Gold, ×1.3 Mult."
+      "desc_en": "If you hold 15+ Gold, ×1.3 Mult.",
+      "tags": [
+        "gold",
+        "multiplier"
+      ]
     },
     {
       "id": "moneylender_eye",
@@ -384,7 +475,10 @@
       "value": 1,
       "condition": "always",
       "desc_ko": "라운드마다 핸드 +1.",
-      "desc_en": "+1 Hand per round."
+      "desc_en": "+1 Hand per round.",
+      "tags": [
+        "hands"
+      ]
     },
     {
       "id": "parity_crown",
@@ -398,7 +492,11 @@
       "value": 10,
       "condition": "even_count",
       "desc_ko": "짝수 눈금이 3개 이상이면 배수 +10.",
-      "desc_en": "If you hold 3+ even dice, +10 Mult."
+      "desc_en": "If you hold 3+ even dice, +10 Mult.",
+      "tags": [
+        "even",
+        "mult"
+      ]
     },
     {
       "id": "debtors_hand",
@@ -412,7 +510,12 @@
       "value": 1.6,
       "condition": "six_present",
       "desc_ko": "6 눈금이 하나라도 있으면 배수 ×1.6. 6이 없으면 아무 일도 없다.",
-      "desc_en": "If any die shows 6, ×1.6 Mult. Does nothing without a 6."
+      "desc_en": "If any die shows 6, ×1.6 Mult. Does nothing without a 6.",
+      "tags": [
+        "pip6",
+        "multiplier",
+        "cursed"
+      ]
     },
     {
       "id": "hungry_maw",
@@ -426,7 +529,12 @@
       "value": 14,
       "condition": "last_hand",
       "desc_ko": "라운드 마지막 핸드로 정산하면 배수 +14. 그 전 핸드는 아무 일도 없다.",
-      "desc_en": "On the final hand of the round, +14 Mult. Silent on any earlier hand."
+      "desc_en": "On the final hand of the round, +14 Mult. Silent on any earlier hand.",
+      "tags": [
+        "last_hand",
+        "mult",
+        "cursed"
+      ]
     },
     {
       "id": "black_mirror",
@@ -440,7 +548,492 @@
       "value": 1.45,
       "condition": "odd_count",
       "desc_ko": "홀수 눈금이 3개 이상이면 배수 ×1.45. 짝수 위주의 판을 스스로 뒤집어야 한다.",
-      "desc_en": "If you hold 3+ odd dice, ×1.45 Mult. You must turn an even-heavy board over."
+      "desc_en": "If you hold 3+ odd dice, ×1.45 Mult. You must turn an even-heavy board over.",
+      "tags": [
+        "odd",
+        "multiplier",
+        "cursed"
+      ]
+    },
+    {
+      "id": "twin_lamp",
+      "name_ko": "두 갈래 등잔",
+      "name_en": "Twin Lamp",
+      "rarity": "common",
+      "cost": 4,
+      "icon": "🪔",
+      "trigger": "on_score",
+      "effect_type": "add_chips",
+      "value": 20,
+      "condition": "two_present",
+      "desc_ko": "2 눈금이 하나라도 있으면 칩 +20.",
+      "desc_en": "If any die shows 2, +20 Chips.",
+      "tags": [
+        "pip2",
+        "chips"
+      ]
+    },
+    {
+      "id": "three_tooth",
+      "name_ko": "세 이빨 빗",
+      "name_en": "Three-Tooth Comb",
+      "rarity": "common",
+      "cost": 4,
+      "icon": "🦷",
+      "trigger": "on_score",
+      "effect_type": "add_mult",
+      "value": 4,
+      "condition": "three_present",
+      "desc_ko": "3 눈금이 하나라도 있으면 배수 +4.",
+      "desc_en": "If any die shows 3, +4 Mult.",
+      "tags": [
+        "pip3",
+        "mult"
+      ]
+    },
+    {
+      "id": "four_leaf",
+      "name_ko": "네 잎 부적",
+      "name_en": "Four-Leaf Charm",
+      "rarity": "common",
+      "cost": 4,
+      "icon": "🍀",
+      "trigger": "on_score",
+      "effect_type": "add_chips",
+      "value": 24,
+      "condition": "four_present",
+      "desc_ko": "4 눈금이 하나라도 있으면 칩 +24.",
+      "desc_en": "If any die shows 4, +24 Chips.",
+      "tags": [
+        "pip4",
+        "chips"
+      ]
+    },
+    {
+      "id": "five_link",
+      "name_ko": "다섯 고리 사슬",
+      "name_en": "Five-Link Chain",
+      "rarity": "common",
+      "cost": 5,
+      "icon": "⛓️",
+      "trigger": "on_score",
+      "effect_type": "add_mult",
+      "value": 4,
+      "condition": "five_present",
+      "desc_ko": "5 눈금이 하나라도 있으면 배수 +4.",
+      "desc_en": "If any die shows 5, +4 Mult.",
+      "tags": [
+        "pip5",
+        "mult"
+      ]
+    },
+    {
+      "id": "halfpenny_tally",
+      "name_ko": "반 푼 눈금판",
+      "name_en": "Halfpenny Tally",
+      "rarity": "common",
+      "cost": 5,
+      "icon": "🔻",
+      "trigger": "on_score",
+      "effect_type": "add_chips",
+      "value": 34,
+      "condition": "sum_at_most_15",
+      "desc_ko": "주사위 눈금의 합이 15 이하이면 칩 +34.",
+      "desc_en": "If the five dice total 15 or less, +34 Chips.",
+      "tags": [
+        "lowpip",
+        "chips"
+      ]
+    },
+    {
+      "id": "third_six",
+      "name_ko": "세 번째 여섯",
+      "name_en": "Third Six",
+      "rarity": "common",
+      "cost": 5,
+      "icon": "🎯",
+      "trigger": "on_score",
+      "effect_type": "add_chips",
+      "value": 70,
+      "condition": "six_count_2",
+      "desc_ko": "6 눈금이 2개 이상이면 칩 +70.",
+      "desc_en": "If you hold 2+ sixes, +70 Chips.",
+      "tags": [
+        "pip6",
+        "chips",
+        "burst"
+      ]
+    },
+    {
+      "id": "parity_lens",
+      "name_ko": "홀짝 렌즈",
+      "name_en": "Parity Lens",
+      "rarity": "uncommon",
+      "cost": 6,
+      "icon": "🔎",
+      "trigger": "on_score",
+      "effect_type": "add_chips",
+      "value": 75,
+      "condition": "even_count_4",
+      "desc_ko": "짝수 눈금이 4개 이상이면 칩 +75.",
+      "desc_en": "If you hold 4+ even dice, +75 Chips.",
+      "tags": [
+        "even",
+        "chips"
+      ]
+    },
+    {
+      "id": "odd_magnet",
+      "name_ko": "홀수 자석",
+      "name_en": "Odd Magnet",
+      "rarity": "uncommon",
+      "cost": 6,
+      "icon": "🧲",
+      "trigger": "on_score",
+      "effect_type": "add_mult",
+      "value": 9,
+      "condition": "odd_count_4",
+      "desc_ko": "홀수 눈금이 4개 이상이면 배수 +9.",
+      "desc_en": "If you hold 4+ odd dice, +9 Mult.",
+      "tags": [
+        "odd",
+        "mult"
+      ]
+    },
+    {
+      "id": "house_key",
+      "name_ko": "집의 열쇠",
+      "name_en": "House Key",
+      "rarity": "uncommon",
+      "cost": 7,
+      "icon": "🗝️",
+      "trigger": "on_score",
+      "effect_type": "mul_mult",
+      "value": 1.25,
+      "condition": "full_house_or_better",
+      "desc_ko": "풀 하우스 이상으로 정산하면 배수 ×1.25.",
+      "desc_en": "If you score Full House or better, ×1.25 Mult.",
+      "tags": [
+        "full_house",
+        "multiplier"
+      ]
+    },
+    {
+      "id": "quad_chain",
+      "name_ko": "네 고리 사슬",
+      "name_en": "Quad Chain",
+      "rarity": "uncommon",
+      "cost": 8,
+      "icon": "🔗",
+      "trigger": "on_score",
+      "effect_type": "add_mult",
+      "value": 30,
+      "condition": "four_kind_or_better",
+      "desc_ko": "포 카드 이상으로 정산하면 배수 +30.",
+      "desc_en": "If you score Four of a Kind or better, +30 Mult.",
+      "tags": [
+        "four_kind",
+        "mult",
+        "burst"
+      ]
+    },
+    {
+      "id": "reroll_whisper",
+      "name_ko": "리롤의 속삭임",
+      "name_en": "Reroll Whisper",
+      "rarity": "uncommon",
+      "cost": 7,
+      "icon": "💨",
+      "trigger": "on_score",
+      "effect_type": "add_chips_per_reroll",
+      "value": 18,
+      "scale": 1,
+      "condition": "always",
+      "desc_ko": "이번 핸드의 리롤 허용량 1회마다 칩 +18.",
+      "desc_en": "+18 Chips for each reroll allowed this hand.",
+      "tags": [
+        "reroll",
+        "chips"
+      ]
+    },
+    {
+      "id": "lantern_of_hands",
+      "name_ko": "남은 손의 등불",
+      "name_en": "Lantern of Hands",
+      "rarity": "uncommon",
+      "cost": 7,
+      "icon": "🏮",
+      "trigger": "on_score",
+      "effect_type": "add_mult_per_hands_left",
+      "value": 3,
+      "scale": 1,
+      "condition": "always",
+      "desc_ko": "정산 시 남은 핸드 1회마다 배수 +3.",
+      "desc_en": "+3 Mult for each hand still remaining when you settle.",
+      "tags": [
+        "hands",
+        "mult"
+      ]
+    },
+    {
+      "id": "small_purse",
+      "name_ko": "작은 주머니",
+      "name_en": "Small Purse",
+      "rarity": "uncommon",
+      "cost": 6,
+      "icon": "👝",
+      "trigger": "on_score",
+      "effect_type": "add_chips_per_gold",
+      "value": 8,
+      "scale": 5,
+      "condition": "always",
+      "desc_ko": "보유 골드 5당 칩 +8.",
+      "desc_en": "+8 Chips for every 5 Gold you hold.",
+      "tags": [
+        "gold",
+        "chips"
+      ]
+    },
+    {
+      "id": "long_road",
+      "name_ko": "긴 길",
+      "name_en": "Long Road",
+      "rarity": "rare",
+      "cost": 9,
+      "icon": "🛣️",
+      "trigger": "on_score",
+      "effect_type": "mul_mult",
+      "value": 1.55,
+      "condition": "large_straight",
+      "desc_ko": "라지 스트레이트로 정산하면 배수 ×1.55.",
+      "desc_en": "If you score a Large Straight, ×1.55 Mult.",
+      "tags": [
+        "straight",
+        "multiplier"
+      ]
+    },
+    {
+      "id": "yahtzee_shrine",
+      "name_ko": "야찌 신전",
+      "name_en": "Yahtzee Shrine",
+      "rarity": "rare",
+      "cost": 11,
+      "icon": "🛕",
+      "trigger": "on_score",
+      "effect_type": "mul_mult",
+      "value": 2.5,
+      "condition": "yahtzee_or_better",
+      "desc_ko": "야찌로 정산하면 배수 ×2.5.",
+      "desc_en": "If you score Yahtzee, ×2.5 Mult.",
+      "tags": [
+        "yahtzee",
+        "multiplier",
+        "burst"
+      ]
+    },
+    {
+      "id": "charm_tithe",
+      "name_ko": "부적 십일조",
+      "name_en": "Charm Tithe",
+      "rarity": "rare",
+      "cost": 8,
+      "icon": "📿",
+      "trigger": "on_score",
+      "effect_type": "add_mult_per_charm",
+      "value": 5,
+      "scale": 1,
+      "condition": "always",
+      "desc_ko": "보유 부적 1개마다 배수 +5.",
+      "desc_en": "+5 Mult for each Charm you hold.",
+      "tags": [
+        "charm",
+        "mult"
+      ]
+    },
+    {
+      "id": "interest_book",
+      "name_ko": "이자 장부",
+      "name_en": "Interest Book",
+      "rarity": "rare",
+      "cost": 9,
+      "icon": "📒",
+      "trigger": "passive",
+      "effect_type": "interest_gold",
+      "value": 1,
+      "scale": 10,
+      "condition": "always",
+      "desc_ko": "라운드를 마칠 때 보유 골드 10당 골드 +1.",
+      "desc_en": "At the end of each round, +1 Gold for every 10 Gold held.",
+      "tags": [
+        "gold",
+        "economy"
+      ]
+    },
+    {
+      "id": "haggler_bill",
+      "name_ko": "흥정꾼의 계산서",
+      "name_en": "Haggler's Bill",
+      "rarity": "rare",
+      "cost": 8,
+      "icon": "🧾",
+      "trigger": "passive",
+      "effect_type": "shop_discount",
+      "value": 25,
+      "condition": "always",
+      "desc_ko": "상점의 유물·부적 가격이 25% 싸진다.",
+      "desc_en": "Relics and Charms cost 25% less in the shop.",
+      "tags": [
+        "economy",
+        "shop"
+      ]
+    },
+    {
+      "id": "curse_bell",
+      "name_ko": "저주 종",
+      "name_en": "Curse Bell",
+      "rarity": "rare",
+      "cost": 9,
+      "icon": "🪬",
+      "trigger": "on_score",
+      "effect_type": "add_mult",
+      "value": 12,
+      "condition": "boss_round",
+      "desc_ko": "보스 라운드에서만 배수 +12.",
+      "desc_en": "During boss rounds only, +12 Mult.",
+      "tags": [
+        "boss",
+        "mult"
+      ]
+    },
+    {
+      "id": "heavy_pip_stone",
+      "name_ko": "무거운 눈금비",
+      "name_en": "Heavy Pip Stone",
+      "rarity": "rare",
+      "cost": 9,
+      "icon": "🪦",
+      "trigger": "on_score",
+      "effect_type": "add_chips",
+      "value": 110,
+      "condition": "sum_at_least_22",
+      "desc_ko": "주사위 눈금의 합이 22 이상이면 칩 +110.",
+      "desc_en": "If the five dice total 22 or more, +110 Chips.",
+      "tags": [
+        "highpip",
+        "chips"
+      ]
+    },
+    {
+      "id": "gallows_die",
+      "name_ko": "교수대 주사위",
+      "name_en": "Gallows Die",
+      "rarity": "cursed",
+      "cost": 3,
+      "icon": "💀",
+      "trigger": "on_score",
+      "effect_type": "mul_mult",
+      "value": 1.7,
+      "condition": "three_kind_or_better",
+      "desc_ko": "트리플 이상으로 정산하면 배수 ×1.7. 원 페어 이하는 아무 일도 없다.",
+      "desc_en": "If you score Three of a Kind or better, ×1.7 Mult. Silent below that.",
+      "tags": [
+        "highhand",
+        "multiplier",
+        "cursed"
+      ]
+    },
+    {
+      "id": "ashen_loan",
+      "name_ko": "잿더미 대출",
+      "name_en": "Ashen Loan",
+      "rarity": "cursed",
+      "cost": 3,
+      "icon": "🔥",
+      "trigger": "on_score",
+      "effect_type": "add_chips",
+      "value": 90,
+      "condition": "sum_at_most_14",
+      "desc_ko": "주사위 눈금의 합이 14 이하일 때만 칩 +90. 높은 눈금을 버려야 하는 도박.",
+      "desc_en": "Only if the five dice total 14 or less, +90 Chips. A gamble that demands low pips.",
+      "tags": [
+        "lowpip",
+        "chips",
+        "cursed"
+      ]
+    },
+    {
+      "id": "the_house_always_wins",
+      "name_ko": "전당포는 언제나 이긴다",
+      "name_en": "The House Always Wins",
+      "rarity": "legendary",
+      "cost": 14,
+      "icon": "🏛️",
+      "trigger": "on_score",
+      "effect_type": "mul_mult",
+      "value": 1.8,
+      "condition": "always",
+      "desc_ko": "정산할 때마다 배수 ×1.8. 전당포의 마지막 규칙.",
+      "desc_en": "Whenever you score, ×1.8 Mult. The pawnshop's final rule.",
+      "tags": [
+        "multiplier",
+        "legendary"
+      ]
+    },
+    {
+      "id": "eternal_ledger",
+      "name_ko": "영원한 영혼 장부",
+      "name_en": "Eternal Soul Ledger",
+      "rarity": "legendary",
+      "cost": 15,
+      "icon": "📖",
+      "trigger": "on_score",
+      "effect_type": "mul_mult",
+      "value": 1.65,
+      "condition": "boss_round",
+      "desc_ko": "보스 라운드에서 정산할 때마다 배수 ×1.65.",
+      "desc_en": "During boss rounds, ×1.65 Mult on every score.",
+      "tags": [
+        "boss",
+        "multiplier",
+        "legendary"
+      ]
+    },
+    {
+      "id": "grand_pawn",
+      "name_ko": "위대한 담보",
+      "name_en": "Grand Pawn",
+      "rarity": "legendary",
+      "cost": 13,
+      "icon": "🗿",
+      "trigger": "on_score",
+      "effect_type": "add_chips",
+      "value": 140,
+      "condition": "always",
+      "desc_ko": "정산할 때마다 칩 +140.",
+      "desc_en": "Whenever you score, +140 Chips.",
+      "tags": [
+        "chips",
+        "legendary"
+      ]
+    },
+    {
+      "id": "soul_auctioneer",
+      "name_ko": "경매사의 지팡이",
+      "name_en": "Auctioneer's Wand",
+      "rarity": "legendary",
+      "cost": 12,
+      "icon": "🪄",
+      "trigger": "on_score",
+      "effect_type": "mul_mult",
+      "value": 1.5,
+      "condition": "gold_at_least_30",
+      "desc_ko": "골드가 30 이상이면 배수 ×1.5. 부를 쌓는 자만이 휘두를 수 있다.",
+      "desc_en": "If you hold 30+ Gold, ×1.5 Mult. Only the wealthy may wield it.",
+      "tags": [
+        "gold",
+        "multiplier",
+        "legendary"
+      ]
     }
   ],
   "charms": [
@@ -453,7 +1046,8 @@
       "effect_type": "all_plus_one",
       "value": 1,
       "desc_ko": "이번 라운드 동안 모든 주사위 눈금 +1 (최대 6).",
-      "desc_en": "For this round, every die shows +1 (max 6)."
+      "desc_en": "For this round, every die shows +1 (max 6).",
+      "scale": 1
     },
     {
       "id": "second_wind",
@@ -464,7 +1058,8 @@
       "effect_type": "reroll_plus",
       "value": 1,
       "desc_ko": "이번 라운드 리롤 +1.",
-      "desc_en": "+1 Reroll for this round."
+      "desc_en": "+1 Reroll for this round.",
+      "scale": 1
     },
     {
       "id": "cracked_compass",
@@ -475,7 +1070,8 @@
       "effect_type": "reroll_plus",
       "value": 2,
       "desc_ko": "이번 라운드 리롤 +2.",
-      "desc_en": "+2 Rerolls for this round."
+      "desc_en": "+2 Rerolls for this round.",
+      "scale": 1
     },
     {
       "id": "extra_palm",
@@ -486,7 +1082,8 @@
       "effect_type": "hand_plus",
       "value": 1,
       "desc_ko": "이번 라운드 핸드 +1.",
-      "desc_en": "+1 Hand for this round."
+      "desc_en": "+1 Hand for this round.",
+      "scale": 1
     },
     {
       "id": "crooked_coin",
@@ -497,7 +1094,8 @@
       "effect_type": "flip_dice",
       "value": 1,
       "desc_ko": "선택한 주사위 1개를 반대 면으로 뒤집는다 (1↔6, 2↔5, 3↔4).",
-      "desc_en": "Flip one chosen die to its opposite face (1↔6, 2↔5, 3↔4)."
+      "desc_en": "Flip one chosen die to its opposite face (1↔6, 2↔5, 3↔4).",
+      "scale": 1
     },
     {
       "id": "soul_flask",
@@ -508,7 +1106,8 @@
       "effect_type": "temp_mult",
       "value": 5,
       "desc_ko": "이번 핸드 정산 배수 +5.",
-      "desc_en": "+5 Mult on this hand's score."
+      "desc_en": "+5 Mult on this hand's score.",
+      "scale": 1
     },
     {
       "id": "blood_vial",
@@ -519,7 +1118,8 @@
       "effect_type": "temp_mult",
       "value": 12,
       "desc_ko": "이번 핸드 정산 배수 +12. 마지막 한 수를 위한 값비싼 도박.",
-      "desc_en": "+12 Mult on this hand's score. An expensive gamble for the last push."
+      "desc_en": "+12 Mult on this hand's score. An expensive gamble for the last push.",
+      "scale": 1
     },
     {
       "id": "debt_script",
@@ -530,7 +1130,96 @@
       "effect_type": "gold_gain",
       "value": 8,
       "desc_ko": "즉시 골드 +8 (구매가 5골드, 순이익 3골드).",
-      "desc_en": "Gain +8 Gold immediately (costs 5, net +3)."
+      "desc_en": "Gain +8 Gold immediately (costs 5, net +3).",
+      "scale": 1
+    },
+    {
+      "id": "bone_pin",
+      "name_ko": "뼈 못",
+      "name_en": "Bone Pin",
+      "cost": 4,
+      "icon": "📌",
+      "effect_type": "hold_dice",
+      "value": 1,
+      "desc_ko": "선택한 주사위 1개를 못 박아 잠근다. 이번 핸드 동안 리롤되지 않는다.",
+      "desc_en": "Pin one chosen die. It cannot be rerolled for the rest of this hand."
+    },
+    {
+      "id": "six_seal",
+      "name_ko": "여섯의 봉인",
+      "name_en": "Seal of Six",
+      "cost": 6,
+      "icon": "🔯",
+      "effect_type": "set_pip",
+      "value": 6,
+      "desc_ko": "선택한 주사위 1개의 눈금을 6으로 바꾼다.",
+      "desc_en": "Change one chosen die to a 6."
+    },
+    {
+      "id": "ash_bandage",
+      "name_ko": "재 붕대",
+      "name_en": "Ash Bandage",
+      "cost": 4,
+      "icon": "🩹",
+      "effect_type": "temp_chips",
+      "value": 60,
+      "desc_ko": "이번 핸드 정산 칩 +60.",
+      "desc_en": "+60 Chips on this hand's score."
+    },
+    {
+      "id": "pin_cushion",
+      "name_ko": "바늘 쿠션",
+      "name_en": "Pin Cushion",
+      "cost": 7,
+      "icon": "🧷",
+      "effect_type": "temp_chips",
+      "value": 120,
+      "desc_ko": "이번 핸드 정산 칩 +120. 마지막 한 수를 위한 담보.",
+      "desc_en": "+120 Chips on this hand's score. Collateral for the final push."
+    },
+    {
+      "id": "parity_draught",
+      "name_ko": "홀짝 물약",
+      "name_en": "Parity Draught",
+      "cost": 5,
+      "icon": "⚗️",
+      "effect_type": "parity_shift",
+      "value": 1,
+      "desc_ko": "모든 홀수 눈금을 +1 한다(6은 그대로). 판을 짝수로 뒤집는다.",
+      "desc_en": "Add +1 to every odd die (6 stays 6). Flip the table toward even."
+    },
+    {
+      "id": "grave_water",
+      "name_ko": "무덤의 물",
+      "name_en": "Grave Water",
+      "cost": 7,
+      "icon": "🫙",
+      "effect_type": "curse_soften",
+      "value": 1,
+      "desc_ko": "이번 라운드 보스 저주의 강도를 절반으로 줄인다(내림).",
+      "desc_en": "Halve this round's boss curse severity (rounded down)."
+    },
+    {
+      "id": "iron_contract",
+      "name_ko": "무쇠 계약서",
+      "name_en": "Iron Contract",
+      "cost": 9,
+      "icon": "🛡️",
+      "effect_type": "curse_nullify",
+      "value": 1,
+      "desc_ko": "이번 라운드 보스 저주를 완전히 무효화한다.",
+      "desc_en": "Nullify this round's boss curse entirely."
+    },
+    {
+      "id": "haggler_token",
+      "name_ko": "흥정 표",
+      "name_en": "Haggler's Token",
+      "cost": 3,
+      "icon": "🎟️",
+      "effect_type": "shop_free_reroll",
+      "value": 1,
+      "desc_ko": "상점 진열 교체를 1회 무료로 한다.",
+      "desc_en": "One free shop stock refresh."
     }
   ],
   "nights": [
@@ -588,8 +1277,8 @@
         {
           "round": 1,
           "type": "normal",
-          "target_score": 1400,
-          "reward_gold": 4,
+          "target_score": 1260,
+          "reward_gold": 6,
           "hands_allowed": 4,
           "rerolls_per_hand": 2,
           "boss_curse_id": null,
@@ -601,8 +1290,8 @@
         {
           "round": 2,
           "type": "elite",
-          "target_score": 1700,
-          "reward_gold": 5,
+          "target_score": 1530,
+          "reward_gold": 7,
           "hands_allowed": 4,
           "rerolls_per_hand": 2,
           "boss_curse_id": null,
@@ -614,8 +1303,8 @@
         {
           "round": 3,
           "type": "boss",
-          "target_score": 1300,
-          "reward_gold": 6,
+          "target_score": 1170,
+          "reward_gold": 8,
           "hands_allowed": 3,
           "rerolls_per_hand": 2,
           "boss_curse_id": "tax_gold",
@@ -634,8 +1323,8 @@
         {
           "round": 1,
           "type": "normal",
-          "target_score": 2900,
-          "reward_gold": 6,
+          "target_score": 2610,
+          "reward_gold": 8,
           "hands_allowed": 4,
           "rerolls_per_hand": 2,
           "boss_curse_id": null,
@@ -647,8 +1336,8 @@
         {
           "round": 2,
           "type": "elite",
-          "target_score": 3100,
-          "reward_gold": 7,
+          "target_score": 2790,
+          "reward_gold": 9,
           "hands_allowed": 4,
           "rerolls_per_hand": 2,
           "boss_curse_id": null,
@@ -660,8 +1349,8 @@
         {
           "round": 3,
           "type": "boss",
-          "target_score": 3000,
-          "reward_gold": 8,
+          "target_score": 2700,
+          "reward_gold": 10,
           "hands_allowed": 3,
           "rerolls_per_hand": 2,
           "boss_curse_id": "cap_six_to_three",
@@ -764,5 +1453,954 @@
         }
       ]
     }
-  ]
+  ],
+  "boss_curses": [
+    {
+      "id": "minus_reroll",
+      "scope": "night",
+      "name_ko": "박자 없는 종",
+      "name_en": "The Out-of-Tune Bell",
+      "desc_ko": "종소리가 한 박자 늦게 울린다. 이 라운드에는 리롤이 1회뿐이다.",
+      "desc_en": "The bell rings a beat late. You get only 1 Reroll this round.",
+      "modifier": {
+        "reroll_delta": -1
+      }
+    },
+    {
+      "id": "tax_gold",
+      "scope": "night",
+      "name_ko": "영혼세 징수관",
+      "name_en": "Soul-Tax Collector",
+      "desc_ko": "정산이 끝나면 골드 3을 압수한다. 빚은 점수로도 골드로도 갚아야 한다.",
+      "desc_en": "When the round settles, 3 Gold is seized. Debts are paid in score and in coin.",
+      "modifier": {
+        "gold_tax_on_clear": 3
+      }
+    },
+    {
+      "id": "cap_six_to_three",
+      "scope": "night",
+      "name_ko": "눈금 도둑",
+      "name_en": "The Pip Thief",
+      "desc_ko": "6 눈금을 훔쳐 3으로 바꿔 놓는다. 여섯을 노리던 판이 무너진다.",
+      "desc_en": "Every 6 is stolen and turned into a 3. Plans built on sixes collapse.",
+      "modifier": {
+        "pip_map": {
+          "6": 3
+        }
+      }
+    },
+    {
+      "id": "no_pair_bonus",
+      "scope": "night",
+      "name_ko": "쌍둥이 사기꾼",
+      "name_en": "The Twin Cheats",
+      "desc_ko": "같은 눈금을 맞춰도 배수가 붙지 않는다. 페어 계열 족보의 기본 배수가 1 줄어든다(최소 1).",
+      "desc_en": "Matching pips earn no bonus: pair-type hands lose 1 base Mult (minimum 1).",
+      "modifier": {
+        "pair_mult_delta": -1
+      }
+    },
+    {
+      "id": "no_even",
+      "scope": "night",
+      "name_ko": "무덤의 주인",
+      "name_en": "The Gravekeeper",
+      "desc_ko": "무덤은 짝수를 삼킨다. 짝수 눈금 주사위는 홀드할 수 없다.",
+      "desc_en": "The grave swallows even numbers. You cannot hold dice showing an even face.",
+      "modifier": {
+        "hold_block": "even"
+      }
+    },
+    {
+      "id": "min_hand_three_kind",
+      "scope": "endless",
+      "name_ko": "값을 매기지 않는 자",
+      "name_en": "The Appraiser",
+      "desc_ko": "하찮은 담보는 받지 않는다. 트리플 미만의 족보로는 정산할 수 없다.",
+      "desc_en": "It refuses worthless collateral. You cannot settle with anything below Three of a Kind.",
+      "modifier": {
+        "min_hand_rank": 3
+      }
+    },
+    {
+      "id": "reroll_first_double",
+      "scope": "endless",
+      "name_ko": "한 박자 늦은 손",
+      "name_en": "The Late Hand",
+      "desc_ko": "핸드마다 첫 리롤이 리롤 2회를 소모한다. 서두르면 손이 늦는다.",
+      "desc_en": "Each hand, the first reroll costs 2 rerolls. Hurry and your hand arrives late.",
+      "modifier": {
+        "first_reroll_cost": 2
+      }
+    },
+    {
+      "id": "odd_locked",
+      "scope": "endless",
+      "name_ko": "홀수의 사냥꾼",
+      "name_en": "The Odd Hunter",
+      "desc_ko": "홀수 눈금은 홀드할 수 없다. 홀수로 쌓아 올린 판이 흔들린다.",
+      "desc_en": "Odd dice cannot be held. Boards stacked on odd pips start to shake.",
+      "modifier": {
+        "hold_block": "odd"
+      }
+    },
+    {
+      "id": "six_blind",
+      "scope": "endless",
+      "name_ko": "여섯을 잊은 자",
+      "name_en": "The One Who Forgot Six",
+      "desc_ko": "6 눈금은 조건 판정에서 없는 것으로 취급된다. 여섯을 세는 유물이 모두 꺼진다.",
+      "desc_en": "Sixes are treated as absent for condition checks. Every relic that counts sixes goes dark.",
+      "modifier": {
+        "condition_pip_void": 6
+      }
+    },
+    {
+      "id": "no_relic_conditions",
+      "scope": "endless",
+      "name_ko": "계약 무효",
+      "name_en": "The Void Clause",
+      "desc_ko": "이번 라운드에는 유물의 조건이 모두 거짓이 된다(상시 조건 제외). 조건에 기댄 빌드가 멈춘다.",
+      "desc_en": "This round every relic condition evaluates false (except Always). Builds that lean on conditions stall.",
+      "modifier": {
+        "disable_conditions": true
+      }
+    }
+  ],
+  "ascensions": [
+    {
+      "level": 0,
+      "name_ko": "맨몸의 계약",
+      "name_en": "Bare Contract",
+      "desc_ko": "기본 규칙. 목표 점수와 시작 자금에 어떤 보정도 없다.",
+      "desc_en": "The base rules. No modifier to target scores or starting gold.",
+      "target_mult": 1.0,
+      "start_gold_delta": 0,
+      "shop_cost_delta": 0,
+      "extra_curse_rule": null,
+      "active_rules": []
+    },
+    {
+      "level": 1,
+      "name_ko": "이자 붙은 계약",
+      "name_en": "Contract with Interest",
+      "desc_ko": "목표 점수 +2%. 같은 빚을 조금 더 비싸게 갚는다.",
+      "desc_en": "+2% target scores. The same debt costs a little more.",
+      "target_mult": 1.02,
+      "start_gold_delta": 0,
+      "shop_cost_delta": 0,
+      "extra_curse_rule": null,
+      "active_rules": []
+    },
+    {
+      "level": 2,
+      "name_ko": "겹친 장부",
+      "name_en": "Doubled Ledger",
+      "desc_ko": "목표 점수 +4%. 장부의 숫자가 한 줄 더 얹힌다.",
+      "desc_en": "+4% target scores. One more line is added to the ledger.",
+      "target_mult": 1.04,
+      "start_gold_delta": 0,
+      "shop_cost_delta": 0,
+      "extra_curse_rule": null,
+      "active_rules": []
+    },
+    {
+      "level": 3,
+      "name_ko": "박자 없는 밤",
+      "name_en": "The Out-of-Tune Night",
+      "desc_ko": "목표 점수 +6%, 밤 3부터 보스 라운드 리롤 −1. 밤의 마지막 손이 짧아진다.",
+      "desc_en": "+6% target scores, −1 Reroll in boss rounds from Night 3. The night's last hand gets shorter.",
+      "target_mult": 1.06,
+      "start_gold_delta": 0,
+      "shop_cost_delta": 0,
+      "extra_curse_rule": {
+        "type": "reroll_penalty",
+        "value": 1,
+        "scope": "boss",
+        "min_night": 3
+      },
+      "active_rules": [
+        {
+          "type": "reroll_penalty",
+          "value": 1,
+          "scope": "boss",
+          "min_night": 3
+        }
+      ]
+    },
+    {
+      "level": 4,
+      "name_ko": "긴 밤",
+      "name_en": "The Long Night",
+      "desc_ko": "목표 점수 +8%, 밤 3부터 보스 리롤 −1, 밤 2부터 정예 리롤 −1. 숨 돌릴 구간이 사라진다.",
+      "desc_en": "+8% target scores, −1 Reroll in boss rounds from Night 3 and in elite rounds from Night 2. No breathing room.",
+      "target_mult": 1.08,
+      "start_gold_delta": 0,
+      "shop_cost_delta": 0,
+      "extra_curse_rule": {
+        "type": "reroll_penalty",
+        "value": 1,
+        "scope": "elite",
+        "min_night": 2
+      },
+      "active_rules": [
+        {
+          "type": "reroll_penalty",
+          "value": 1,
+          "scope": "boss",
+          "min_night": 3
+        },
+        {
+          "type": "reroll_penalty",
+          "value": 1,
+          "scope": "elite",
+          "min_night": 2
+        }
+      ]
+    },
+    {
+      "level": 5,
+      "name_ko": "마지막 계약",
+      "name_en": "The Final Contract",
+      "desc_ko": "목표 점수 +10%, 보스·정예 리롤 −1, 그리고 마지막 밤의 보스는 저주를 두 개 겹쳐 건다. 이 계약을 갱신하면 아무도 남지 않는다.",
+      "desc_en": "+10% target scores, −1 Reroll in boss and elite rounds, and the final night's boss carries two curses. No one renews this contract.",
+      "target_mult": 1.1,
+      "start_gold_delta": 0,
+      "shop_cost_delta": 0,
+      "extra_curse_rule": {
+        "type": "extra_boss_curse",
+        "value": 1,
+        "min_night": 5,
+        "pool": [
+          "six_blind",
+          "odd_locked"
+        ]
+      },
+      "active_rules": [
+        {
+          "type": "reroll_penalty",
+          "value": 1,
+          "scope": "boss",
+          "min_night": 3
+        },
+        {
+          "type": "reroll_penalty",
+          "value": 1,
+          "scope": "elite",
+          "min_night": 2
+        },
+        {
+          "type": "extra_boss_curse",
+          "value": 1,
+          "min_night": 5,
+          "pool": [
+            "six_blind",
+            "odd_locked"
+          ]
+        }
+      ]
+    }
+  ],
+  "achievements": [
+    {
+      "id": "first_contract",
+      "icon": "🖋️",
+      "name_ko": "첫 계약 갱신",
+      "name_en": "First Renewal",
+      "desc_ko": "다섯 밤을 모두 버티고 승리한다.",
+      "desc_en": "Survive all five nights and win.",
+      "condition_type": "wins",
+      "target_value": 1,
+      "scope": "meta"
+    },
+    {
+      "id": "yahtzee_roll",
+      "icon": "🎲",
+      "name_ko": "다섯 개의 맹세",
+      "name_en": "Five Oaths",
+      "desc_ko": "야찌를 한 번 이상 정산한다.",
+      "desc_en": "Settle a Yahtzee at least once.",
+      "condition_type": "yahtzee_scored",
+      "target_value": 1,
+      "scope": "run"
+    },
+    {
+      "id": "hand_5000",
+      "icon": "🔥",
+      "name_ko": "한 수의 폭발",
+      "name_en": "One-Hand Blast",
+      "desc_ko": "한 핸드로 5,000점 이상을 낸다.",
+      "desc_en": "Score 5,000+ in a single hand.",
+      "condition_type": "single_hand_score",
+      "target_value": 5000,
+      "scope": "run"
+    },
+    {
+      "id": "hand_20000",
+      "icon": "💥",
+      "name_ko": "전당포가 흔들린 밤",
+      "name_en": "The Night the Shop Shook",
+      "desc_ko": "한 핸드로 20,000점 이상을 낸다.",
+      "desc_en": "Score 20,000+ in a single hand.",
+      "condition_type": "single_hand_score",
+      "target_value": 20000,
+      "scope": "run"
+    },
+    {
+      "id": "ascension_3",
+      "icon": "🕯️",
+      "name_ko": "세 번째 계약",
+      "name_en": "Third Contract",
+      "desc_ko": "승천 3단계 이상에서 승리한다.",
+      "desc_en": "Win at Ascension 3 or higher.",
+      "condition_type": "ascension_clear",
+      "target_value": 3,
+      "scope": "run"
+    },
+    {
+      "id": "ascension_5",
+      "icon": "⛓️",
+      "name_ko": "마지막 계약자",
+      "name_en": "The Last Contractor",
+      "desc_ko": "승천 5단계에서 승리한다.",
+      "desc_en": "Win at Ascension 5.",
+      "condition_type": "ascension_clear",
+      "target_value": 5,
+      "scope": "run"
+    },
+    {
+      "id": "relic_30",
+      "icon": "⚱️",
+      "name_ko": "수집가의 다락",
+      "name_en": "Collector's Loft",
+      "desc_ko": "한 계정에서 서로 다른 유물 30종을 보유한 기록을 만든다.",
+      "desc_en": "Own 30 different relics across runs.",
+      "condition_type": "relic_collection",
+      "target_value": 30,
+      "scope": "meta"
+    },
+    {
+      "id": "no_reroll_boss",
+      "icon": "🎯",
+      "name_ko": "리롤 없는 밤",
+      "name_en": "A Night Without Rerolls",
+      "desc_ko": "리롤을 한 번도 쓰지 않고 보스 라운드를 클리어한다.",
+      "desc_en": "Clear a boss round without using a single reroll.",
+      "condition_type": "boss_clear_no_reroll",
+      "target_value": 1,
+      "scope": "run"
+    },
+    {
+      "id": "zero_gold_win",
+      "icon": "🕳️",
+      "name_ko": "빚더미의 승리",
+      "name_en": "Victory in Debt",
+      "desc_ko": "골드 0 상태로 밤을 넘긴다.",
+      "desc_en": "Finish a night holding 0 Gold.",
+      "condition_type": "win_with_zero_gold",
+      "target_value": 1,
+      "scope": "run"
+    },
+    {
+      "id": "endless_8",
+      "icon": "🌑",
+      "name_ko": "여덟 번째 밤",
+      "name_en": "The Eighth Night",
+      "desc_ko": "엔드리스에서 밤 8에 도달한다.",
+      "desc_en": "Reach night 8 in Endless mode.",
+      "condition_type": "endless_night",
+      "target_value": 8,
+      "scope": "run"
+    },
+    {
+      "id": "endless_12",
+      "icon": "🌌",
+      "name_ko": "끝나지 않는 계약",
+      "name_en": "The Endless Contract",
+      "desc_ko": "엔드리스에서 밤 12에 도달한다.",
+      "desc_en": "Reach night 12 in Endless mode.",
+      "condition_type": "endless_night",
+      "target_value": 12,
+      "scope": "run"
+    },
+    {
+      "id": "boss_hands_left",
+      "icon": "🏮",
+      "name_ko": "두 손이 남은 채로",
+      "name_en": "With Two Hands to Spare",
+      "desc_ko": "핸드 2회 이상을 남기고 보스 라운드를 클리어한다.",
+      "desc_en": "Clear a boss round with 2+ hands remaining.",
+      "condition_type": "boss_clear_hands_left",
+      "target_value": 2,
+      "scope": "run"
+    },
+    {
+      "id": "curse_nullified",
+      "icon": "🛡️",
+      "name_ko": "계약 무효",
+      "name_en": "Void Clause",
+      "desc_ko": "보스 저주를 부적으로 3회 무효화한다.",
+      "desc_en": "Nullify a boss curse with a charm 3 times.",
+      "condition_type": "curse_nullified",
+      "target_value": 3,
+      "scope": "run"
+    },
+    {
+      "id": "legendary_pair",
+      "icon": "🏛️",
+      "name_ko": "전당포의 두 기둥",
+      "name_en": "Two Pillars of the Shop",
+      "desc_ko": "전설 유물 2개를 보유한 채 라운드를 클리어한다.",
+      "desc_en": "Clear a round while holding 2 legendary relics.",
+      "condition_type": "legendary_held",
+      "target_value": 2,
+      "scope": "run"
+    },
+    {
+      "id": "total_100k",
+      "icon": "📚",
+      "name_ko": "백만 냥의 장부",
+      "name_en": "A Ledger of a Hundred Thousand",
+      "desc_ko": "한 판에서 누적 100,000점을 넘긴다.",
+      "desc_en": "Reach 100,000 total score in a single run.",
+      "condition_type": "total_score",
+      "target_value": 100000,
+      "scope": "run"
+    }
+  ],
+  "endless": {
+    "enabled": true,
+    "start_night": 6,
+    "rounds_per_night": 3,
+    "hands_allowed": 3,
+    "rerolls_per_hand": 2,
+    "reward_gold_base": 14,
+    "reward_gold_growth": 2,
+    "base_target": 6500,
+    "target_growth_per_night": 1.28,
+    "round_type_target_mult": {
+      "normal": 1.0,
+      "elite": 1.08,
+      "boss": 1.0
+    },
+    "boss_rotation": [
+      "min_hand_three_kind",
+      "reroll_first_double",
+      "odd_locked",
+      "six_blind",
+      "no_relic_conditions"
+    ],
+    "night_name_template_ko": "{n}번째 밤 — {boss}",
+    "night_name_template_en": "Night {n} — {boss}",
+    "best_night_key": "cursedPawn.save.endlessBest"
+  },
+  "schema": {
+    "version": "2.0",
+    "description_ko": "game_data.json 의 기계 판독용 계약 사전. 모든 유물/부적이 쓰는 condition·effect_type·charm_effect 는 반드시 여기 등재되어야 하며, tools/balance_sim.py 가 이 사전과 실제 데이터의 일치를 검사한다.",
+    "description_en": "Machine-readable contract for game_data.json. Every condition, effect_type and charm effect used by relics/charms must be listed here; tools/balance_sim.py validates the match.",
+    "engine_support_legend": {
+      "native": "기존 js/game.js 가 직접 판정",
+      "regex": "기존 js/game.js 의 방어적 정규식 분기가 판정",
+      "pending": "엔진 통합 필요 (js/game.js 수정 대상, 이번 작업에서 수정 금지)"
+    },
+    "locale_fields": [
+      "name_ko",
+      "name_en",
+      "desc_ko",
+      "desc_en"
+    ],
+    "triggers": {
+      "on_score": {
+        "name_ko": "정산 시",
+        "name_en": "On score",
+        "engine": "native"
+      },
+      "on_roll": {
+        "name_ko": "핸드 시작 시 1회",
+        "name_en": "On hand start",
+        "engine": "native"
+      },
+      "passive": {
+        "name_ko": "상시",
+        "name_en": "Passive",
+        "engine": "native"
+      }
+    },
+    "conditions": {
+      "always": {
+        "name_ko": "상시",
+        "name_en": "Always",
+        "engine": "native",
+        "params": {},
+        "eval": "항상 참 / always true"
+      },
+      "even_count": {
+        "name_ko": "짝수 눈금 3개 이상",
+        "name_en": "3+ even dice",
+        "engine": "native",
+        "params": {
+          "pip_count": 3
+        },
+        "eval": "짝수 눈금 개수 >= 3"
+      },
+      "odd_count": {
+        "name_ko": "홀수 눈금 3개 이상",
+        "name_en": "3+ odd dice",
+        "engine": "native",
+        "params": {
+          "pip_count": 3
+        },
+        "eval": "홀수 눈금 개수 >= 3"
+      },
+      "even_count_4": {
+        "name_ko": "짝수 눈금 4개 이상",
+        "name_en": "4+ even dice",
+        "engine": "regex",
+        "params": {
+          "pip_count": 4
+        },
+        "eval": "even_count_N: 짝수 개수 >= N"
+      },
+      "odd_count_4": {
+        "name_ko": "홀수 눈금 4개 이상",
+        "name_en": "4+ odd dice",
+        "engine": "regex",
+        "params": {
+          "pip_count": 4
+        },
+        "eval": "odd_count_N: 홀수 개수 >= N"
+      },
+      "even_count_5": {
+        "name_ko": "모든 눈금이 짝수",
+        "name_en": "All dice even",
+        "engine": "regex",
+        "params": {
+          "pip_count": 5
+        },
+        "eval": "even_count_N (N=5)"
+      },
+      "pair_or_better": {
+        "name_ko": "원 페어 이상",
+        "name_en": "One Pair or better",
+        "engine": "native",
+        "params": {
+          "min_rank": 1
+        },
+        "eval": "족보 순위 >= 1"
+      },
+      "three_kind_or_better": {
+        "name_ko": "트리플 이상",
+        "name_en": "Three of a Kind or better",
+        "engine": "regex",
+        "params": {
+          "min_rank": 3
+        },
+        "eval": "*_or_better: 족보 순위 >= 3"
+      },
+      "four_kind_or_better": {
+        "name_ko": "포 카드 이상",
+        "name_en": "Four of a Kind or better",
+        "engine": "regex",
+        "params": {
+          "min_rank": 7
+        },
+        "eval": "족보 순위 >= 7"
+      },
+      "full_house_or_better": {
+        "name_ko": "풀 하우스 이상",
+        "name_en": "Full House or better",
+        "engine": "regex",
+        "params": {
+          "min_rank": 6
+        },
+        "eval": "족보 순위 >= 6"
+      },
+      "yahtzee_or_better": {
+        "name_ko": "야찌",
+        "name_en": "Yahtzee",
+        "engine": "regex",
+        "params": {
+          "min_rank": 8
+        },
+        "eval": "족보 순위 >= 8"
+      },
+      "straight": {
+        "name_ko": "스트레이트 계열",
+        "name_en": "Straight",
+        "engine": "native",
+        "params": {},
+        "eval": "small/large straight"
+      },
+      "large_straight": {
+        "name_ko": "라지 스트레이트",
+        "name_en": "Large Straight",
+        "engine": "pending",
+        "params": {},
+        "eval": "1-5 또는 2-6 완성"
+      },
+      "two_present": {
+        "name_ko": "2 눈금 포함",
+        "name_en": "A two is present",
+        "engine": "regex",
+        "params": {
+          "pip": 2
+        },
+        "eval": "X_present: 해당 눈금 존재"
+      },
+      "three_present": {
+        "name_ko": "3 눈금 포함",
+        "name_en": "A three is present",
+        "engine": "regex",
+        "params": {
+          "pip": 3
+        },
+        "eval": "X_present"
+      },
+      "four_present": {
+        "name_ko": "4 눈금 포함",
+        "name_en": "A four is present",
+        "engine": "regex",
+        "params": {
+          "pip": 4
+        },
+        "eval": "X_present"
+      },
+      "five_present": {
+        "name_ko": "5 눈금 포함",
+        "name_en": "A five is present",
+        "engine": "regex",
+        "params": {
+          "pip": 5
+        },
+        "eval": "X_present"
+      },
+      "six_present": {
+        "name_ko": "6 눈금 포함",
+        "name_en": "A six is present",
+        "engine": "native",
+        "params": {
+          "pip": 6
+        },
+        "eval": "6 존재"
+      },
+      "one_present": {
+        "name_ko": "1 눈금 포함",
+        "name_en": "A one is present",
+        "engine": "native",
+        "params": {
+          "pip": 1
+        },
+        "eval": "1 존재"
+      },
+      "six_count_2": {
+        "name_ko": "6 눈금 2개 이상",
+        "name_en": "2+ sixes",
+        "engine": "regex",
+        "params": {
+          "pip": 6,
+          "pip_count": 2
+        },
+        "eval": "X_count_N: 해당 눈금 개수 >= N"
+      },
+      "last_hand": {
+        "name_ko": "라운드 마지막 핸드",
+        "name_en": "Final hand of the round",
+        "engine": "native",
+        "params": {},
+        "eval": "남은 핸드 <= 1"
+      },
+      "gold_over_15": {
+        "name_ko": "골드 15 이상",
+        "name_en": "15+ Gold",
+        "engine": "native",
+        "params": {},
+        "eval": "엔진 구현은 >= 15"
+      },
+      "gold_at_least_30": {
+        "name_ko": "골드 30 이상",
+        "name_en": "30+ Gold",
+        "engine": "regex",
+        "params": {
+          "gold": 30
+        },
+        "eval": "gold_at_least_N: 골드 >= N"
+      },
+      "sum_at_most_15": {
+        "name_ko": "눈금 합 15 이하",
+        "name_en": "Dice total 15 or less",
+        "engine": "pending",
+        "params": {
+          "sum_max": 15
+        },
+        "eval": "sum(dice) <= 15"
+      },
+      "sum_at_most_14": {
+        "name_ko": "눈금 합 14 이하",
+        "name_en": "Dice total 14 or less",
+        "engine": "pending",
+        "params": {
+          "sum_max": 14
+        },
+        "eval": "sum(dice) <= 14"
+      },
+      "sum_at_least_22": {
+        "name_ko": "눈금 합 22 이상",
+        "name_en": "Dice total 22 or more",
+        "engine": "pending",
+        "params": {
+          "sum_min": 22
+        },
+        "eval": "sum(dice) >= 22"
+      },
+      "boss_round": {
+        "name_ko": "보스 라운드",
+        "name_en": "Boss round",
+        "engine": "pending",
+        "params": {},
+        "eval": "current_round.type == 'boss'"
+      }
+    },
+    "effect_types": {
+      "add_chips": {
+        "name_ko": "칩 +N",
+        "name_en": "+N Chips",
+        "engine": "native",
+        "phase": "score",
+        "eval": "chips += value"
+      },
+      "add_mult": {
+        "name_ko": "배수 +N",
+        "name_en": "+N Mult",
+        "engine": "native",
+        "phase": "score",
+        "eval": "mult += value"
+      },
+      "mul_mult": {
+        "name_ko": "배수 ×N",
+        "name_en": "×N Mult",
+        "engine": "native",
+        "phase": "score",
+        "eval": "mul *= value (모두 곱한 뒤 1회 적용)"
+      },
+      "extra_reroll": {
+        "name_ko": "리롤 +N",
+        "name_en": "+N Reroll",
+        "engine": "native",
+        "phase": "round",
+        "eval": "핸드당 리롤 +N"
+      },
+      "extra_hand": {
+        "name_ko": "핸드 +N",
+        "name_en": "+N Hand",
+        "engine": "native",
+        "phase": "round",
+        "eval": "라운드 핸드 +N"
+      },
+      "gold_bonus": {
+        "name_ko": "골드 +N",
+        "name_en": "+N Gold",
+        "engine": "native",
+        "phase": "clear",
+        "eval": "라운드 클리어 시 골드 +N (조건 판정)"
+      },
+      "add_chips_per_reroll": {
+        "name_ko": "리롤당 칩 +N",
+        "name_en": "+N Chips per reroll",
+        "engine": "pending",
+        "phase": "score",
+        "eval": "chips += value * rerolls_max"
+      },
+      "add_mult_per_hands_left": {
+        "name_ko": "남은 핸드당 배수 +N",
+        "name_en": "+N Mult per hand left",
+        "engine": "pending",
+        "phase": "score",
+        "eval": "mult += value * hands_left"
+      },
+      "add_chips_per_gold": {
+        "name_ko": "골드 N당 칩 +V",
+        "name_en": "+V Chips per N Gold",
+        "engine": "pending",
+        "phase": "score",
+        "eval": "chips += value * floor(gold / scale)"
+      },
+      "add_mult_per_charm": {
+        "name_ko": "부적당 배수 +N",
+        "name_en": "+N Mult per Charm",
+        "engine": "pending",
+        "phase": "score",
+        "eval": "mult += value * charm_count"
+      },
+      "shop_discount": {
+        "name_ko": "상점 할인 N%",
+        "name_en": "N% shop discount",
+        "engine": "pending",
+        "phase": "shop",
+        "eval": "price = ceil(price * (1 - value/100))"
+      },
+      "interest_gold": {
+        "name_ko": "이자 골드 +N",
+        "name_en": "+N Interest Gold",
+        "engine": "pending",
+        "phase": "clear",
+        "eval": "gold += value * floor(gold / scale) (clear 시)"
+      }
+    },
+    "charm_effects": {
+      "all_plus_one": {
+        "name_ko": "모든 눈금 +N",
+        "name_en": "All dice +N",
+        "engine": "native",
+        "eval": "라운드 동안 눈금 +value (최대 6)"
+      },
+      "reroll_plus": {
+        "name_ko": "리롤 +N",
+        "name_en": "Reroll +N",
+        "engine": "native",
+        "eval": "라운드 리롤 +value"
+      },
+      "hand_plus": {
+        "name_ko": "핸드 +N",
+        "name_en": "Hand +N",
+        "engine": "native",
+        "eval": "라운드 핸드 +value"
+      },
+      "flip_dice": {
+        "name_ko": "주사위 뒤집기",
+        "name_en": "Flip a die",
+        "engine": "native",
+        "eval": "선택 주사위를 7-value 로"
+      },
+      "temp_mult": {
+        "name_ko": "이번 핸드 배수 +N",
+        "name_en": "+N Mult this hand",
+        "engine": "native",
+        "eval": "이번 핸드 mult +value"
+      },
+      "gold_gain": {
+        "name_ko": "골드 +N",
+        "name_en": "+N Gold",
+        "engine": "native",
+        "eval": "즉시 골드 +value"
+      },
+      "hold_dice": {
+        "name_ko": "주사위 고정",
+        "name_en": "Pin a die",
+        "engine": "pending",
+        "eval": "선택 주사위를 잠금(이번 핸드 리롤 불가)"
+      },
+      "set_pip": {
+        "name_ko": "눈금 변환",
+        "name_en": "Set a die",
+        "engine": "pending",
+        "eval": "선택 주사위 눈금을 value 로"
+      },
+      "temp_chips": {
+        "name_ko": "이번 핸드 칩 +N",
+        "name_en": "+N Chips this hand",
+        "engine": "pending",
+        "eval": "이번 핸드 chips +value"
+      },
+      "parity_shift": {
+        "name_ko": "홀수 눈금 +1",
+        "name_en": "Odd dice +1",
+        "engine": "pending",
+        "eval": "모든 홀수 눈금 +value (최대 6)"
+      },
+      "curse_soften": {
+        "name_ko": "저주 약화",
+        "name_en": "Soften curse",
+        "engine": "pending",
+        "eval": "이번 라운드 저주 강도 절반(내림)"
+      },
+      "curse_nullify": {
+        "name_ko": "저주 무효",
+        "name_en": "Nullify curse",
+        "engine": "pending",
+        "eval": "이번 라운드 저주 무효"
+      },
+      "shop_free_reroll": {
+        "name_ko": "상점 무료 리롤",
+        "name_en": "Free shop reroll",
+        "engine": "pending",
+        "eval": "진열 교체 1회 무료"
+      }
+    },
+    "boss_curse_modifiers": {
+      "reroll_delta": "라운드 리롤 허용량 증감 (int)",
+      "gold_tax_on_clear": "클리어 보상 지급 후 압수할 골드 (int)",
+      "pip_map": "정산/조건 판정 시 눈금 변환 맵 (예: {\"6\": 3})",
+      "pair_mult_delta": "페어 계열 족보 기본 배수 증감 (int, 최소 1)",
+      "hold_block": "홀드 금지 눈금 종류: even | odd | null",
+      "min_hand_rank": "정산 가능한 최소 족보 순위 (0~8)",
+      "first_reroll_cost": "핸드마다 첫 리롤이 소모하는 리롤 수 (int)",
+      "condition_pip_void": "조건 판정에서 없는 것으로 취급할 눈금 (1~6|null)",
+      "disable_conditions": "true 이면 always 를 제외한 모든 유물 조건이 거짓"
+    },
+    "achievement_condition_types": {
+      "wins": "누적 승리 횟수",
+      "yahtzee_scored": "야찌 정산 횟수",
+      "single_hand_score": "한 핸드 최고 점수",
+      "ascension_clear": "클리어한 최고 승천 단계",
+      "relic_collection": "보유한 서로 다른 유물 종류 수 (계정 누적)",
+      "boss_clear_no_reroll": "리롤 0회 보스 클리어 횟수",
+      "win_with_zero_gold": "골드 0 상태로 밤을 넘긴 횟수",
+      "endless_night": "도달한 엔드리스 밤",
+      "boss_clear_hands_left": "보스 클리어 시 남은 핸드 수",
+      "curse_nullified": "부적으로 무효화한 저주 횟수",
+      "legendary_held": "보유 전설 유물 수",
+      "total_score": "한 판 누적 점수"
+    },
+    "ascension_rule_types": {
+      "shop_surcharge": {
+        "ko": "상점 가격 +N 골드",
+        "en": "+N Gold shop prices",
+        "params": [
+          "value"
+        ]
+      },
+      "start_gold": {
+        "ko": "시작 골드 +N",
+        "en": "+N starting Gold",
+        "params": [
+          "value"
+        ]
+      },
+      "gold_tax": {
+        "ko": "라운드 보상 −N 골드",
+        "en": "−N Gold per round clear",
+        "params": [
+          "value"
+        ]
+      },
+      "reroll_penalty": {
+        "ko": "해당 라운드 리롤 −N",
+        "en": "−N Reroll in matching rounds",
+        "params": [
+          "value",
+          "scope(boss|elite|all)",
+          "min_night"
+        ]
+      },
+      "hand_penalty": {
+        "ko": "해당 라운드 핸드 −N",
+        "en": "−N Hand in matching rounds",
+        "params": [
+          "value",
+          "scope",
+          "min_night"
+        ]
+      },
+      "extra_boss_curse": {
+        "ko": "보스에 저주 N개 추가",
+        "en": "+N extra boss curse",
+        "params": [
+          "value",
+          "min_night",
+          "pool"
+        ]
+      }
+    }
+  }
 }

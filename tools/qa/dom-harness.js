@@ -13,7 +13,11 @@ function makeEl(tag) {
   const el = {
     tagName: (tag || 'div').toUpperCase(),
     parentNode: null,
-    style: {},
+    style: {
+      setProperty(k, v) { this[k] = v; },
+      removeProperty(k) { delete this[k]; },
+      getPropertyValue(k) { return this[k] == null ? '' : this[k]; }
+    },
     dataset: {},
     _text: '',
     _classes: classes,
@@ -137,8 +141,10 @@ function buildSandbox(opts) {
 }
 
 function runGame(sandbox) {
+  const i18n = fs.readFileSync(path.join(GAME_DIR, 'js/i18n.js'), 'utf8');
   const audio = fs.readFileSync(path.join(GAME_DIR, 'js/audio.js'), 'utf8');
   const game = fs.readFileSync(path.join(GAME_DIR, 'js/game.js'), 'utf8');
+  vm.runInContext(i18n, sandbox, { filename: 'i18n.js' });
   vm.runInContext(audio, sandbox, { filename: 'audio.js' });
   vm.runInContext(game, sandbox, { filename: 'game.js' });
 }

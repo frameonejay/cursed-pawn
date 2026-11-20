@@ -1,20 +1,36 @@
 {
   "name": "cursed-pawn",
   "productName": "CURSED PAWN",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "description": "CURSED PAWN: 영혼 전당포 — a dark-fantasy dice roguelike deckbuilder. Pawn your soul, one roll at a time.",
   "main": "electron-main.js",
-  "author": "Frame One Studio",
+  "author": {
+    "name": "Frame One Studio",
+    "email": "frameone.jay@gmail.com"
+  },
+  "homepage": "https://frameonejay.github.io/cursed-pawn/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/frameonejay/cursed-pawn.git"
+  },
   "license": "UNLICENSED",
   "private": true,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
     "serve": "python3 -m http.server 8080",
+    "test": "node tools/qa/engine_test.js",
+    "balance": "python3 tools/balance_sim.py",
+    "fallback": "python3 tools/build_fallback.py",
     "dist": "electron-builder --win --x64",
     "dist:dir": "electron-builder --dir",
-    "dist:all": "electron-builder -mwl"
+    "dist:all": "electron-builder -mwl",
+    "dist:steam": "electron-builder --dir --win --x64 && node tools/package_steam.js"
   },
+  "dependencies": {},
   "devDependencies": {
     "electron": "^33.2.1",
     "electron-builder": "^25.1.8"
@@ -25,6 +41,7 @@
   "build": {
     "appId": "com.frameone.cursedpawn",
     "productName": "Cursed Pawn",
+    "copyright": "Copyright © 2026 Frame One Studio",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -39,6 +56,9 @@
       "assets/**/*",
       "package.json"
     ],
+    "extraMetadata": {
+      "main": "electron-main.js"
+    },
     "win": {
       "target": [
         "nsis",
@@ -47,7 +67,10 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "CursedPawn-${version}-setup.${ext}",
+      "shortcutName": "CURSED PAWN"
     },
     "linux": {
       "target": [
@@ -60,6 +83,11 @@
         "dmg"
       ],
       "category": "public.app-category.games"
+    },
+    "steam": {
+      "appId": "480",
+      "depotRoot": "dist/steam",
+      "note": "Steamworks 파트너 사이트에서 실제 AppID 로 교체하고 steam_appid.txt 를 실행 폴더에 둡니다."
     }
   }
 }
