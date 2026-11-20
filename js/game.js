@@ -1440,8 +1440,9 @@
     S.curseNull = false;
     S.shopFree = 0;
     S.run = { rerolls: 0, bossRerolls: 0, curseNull: 0, bestHand: 0, yahtzee: 0, legendary: 0, bestHandsLeft: 0, noRerollBoss: false, zeroGoldNight: false, endlessNight: 0, winAscension: -1 };
-    addLog('ascension', t('log.ascension', { level: S.ascension, name: dname(ascensionDef(S.ascension)) }), '', '',
-      () => t('log.ascension', { level: S.ascension, name: dname(ascensionDef(S.ascension)) }));
+    const logAsc = S.ascension;
+    addLog('ascension', t('log.ascension', { level: logAsc, name: dname(ascensionDef(logAsc)) }), '', '',
+      () => t('log.ascension', { level: logAsc, name: dname(ascensionDef(logAsc)) }));
     startRound();
   }
 
@@ -1478,14 +1479,17 @@
     S.handsMax = num(r.hands_allowed, 4) + extraHands;
     S.hands = S.handsMax;
 
+    const logNight = S.night;
+    const logRound = S.roundNum;
+    const logType = r.type || 'normal';
     addLog('roundStart', t('log.roundStart', {
-      night: S.night,
-      type: t('type.' + (r.type || 'normal')),
-      round: S.roundNum
+      night: logNight,
+      type: t('type.' + logType),
+      round: logRound
     }), '', '', () => t('log.roundStart', {
-      night: S.night,
-      type: t('type.' + (r.type || 'normal')),
-      round: S.roundNum
+      night: logNight,
+      type: t('type.' + logType),
+      round: logRound
     }));
 
     if (S.curseIds.length) {
