@@ -1440,7 +1440,8 @@
     S.curseNull = false;
     S.shopFree = 0;
     S.run = { rerolls: 0, bossRerolls: 0, curseNull: 0, bestHand: 0, yahtzee: 0, legendary: 0, bestHandsLeft: 0, noRerollBoss: false, zeroGoldNight: false, endlessNight: 0, winAscension: -1 };
-    addLog('ascension', t('log.ascension', { level: S.ascension, name: dname(ascensionDef(S.ascension)) }), '', '');
+    addLog('ascension', t('log.ascension', { level: S.ascension, name: dname(ascensionDef(S.ascension)) }), '', '',
+      () => t('log.ascension', { level: S.ascension, name: dname(ascensionDef(S.ascension)) }));
     startRound();
   }
 
@@ -1481,11 +1482,15 @@
       night: S.night,
       type: t('type.' + (r.type || 'normal')),
       round: S.roundNum
-    }), '', '');
+    }), '', '', () => t('log.roundStart', {
+      night: S.night,
+      type: t('type.' + (r.type || 'normal')),
+      round: S.roundNum
+    }));
 
     if (S.curseIds.length) {
       S.curseIds.forEach(id => {
-        addLog('curse', t('log.curse', { name: curseName(id) }), '', 'bad');
+        addLog('curse', t('log.curse', { name: curseName(id) }), '', 'bad', () => t('log.curse', { name: curseName(id) }));
       });
       sfx('boss');
       say('boss');
@@ -1915,7 +1920,8 @@
     if (bd.total > S.run.bestHand) S.run.bestHand = bd.total;
     if (bd.handId === 'yahtzee') S.run.yahtzee += 1;
 
-    addLog('score', t('log.score', { hand: dname(bd.hand) }), '+' + comma(bd.total), 'good');
+    addLog('score', t('log.score', { hand: dname(bd.hand) }), '+' + comma(bd.total), 'good',
+      () => t('log.score', { hand: dname(bd.hand) }));
     sfx('coins', 2);
 
     const handsEl = $('stat-hands');
@@ -1963,12 +1969,13 @@
     if (goldTax > 0) {
       tax = Math.min(goldTax, S.gold);
       S.gold -= tax;
-      addLog('tax', t('log.tax'), '−' + tax, 'bad');
+      addLog('tax', t('log.tax'), '−' + tax, 'bad', () => t('log.tax'));
       sfx('error');
     }
 
-    addLog('clear', t('log.clear'), '+' + comma(reward + bonus + interest), 'good');
-    if (interest) addLog('interest', t('log.interest', { g: comma(interest) }), '+' + comma(interest), 'good');
+    addLog('clear', t('log.clear'), '+' + comma(reward + bonus + interest), 'good', () => t('log.clear'));
+    if (interest) addLog('interest', t('log.interest', { g: comma(interest) }), '+' + comma(interest), 'good',
+      () => t('log.interest', { g: comma(interest) }));
 
     // 업적 트래커
     if (r.type === 'boss') {
@@ -2216,7 +2223,8 @@
       S.run.legendary = Math.max(S.run.legendary || 0, S.relics.filter(rl => rl.rarity === 'legendary').length);
       sfx('playRelicTrigger');
     }
-    addLog('relic', t('log.relic', { name: dname(entry.def) }), '−' + comma(price), '');
+    addLog('relic', t('log.relic', { name: dname(entry.def) }), '−' + comma(price), '',
+      () => t('log.relic', { name: dname(entry.def) }));
     toast(t('toast.bought', { name: dname(entry.def), g: comma(price) }));
     sfx('buy');
     renderShop();
@@ -2234,7 +2242,8 @@
     S.gold -= price;
     entry.bought = true;
     S.charms.push(Object.assign({}, entry.def, { uid: S.uid++ }));
-    addLog('charm', t('log.charm', { name: dname(entry.def) }), '−' + comma(price), '');
+    addLog('charm', t('log.charm', { name: dname(entry.def) }), '−' + comma(price), '',
+      () => t('log.charm', { name: dname(entry.def) }));
     toast(t('toast.bought', { name: dname(entry.def), g: comma(price) }));
     sfx('buy');
     renderShop();
@@ -2277,7 +2286,8 @@
       return;
     }
     if (S.endless && S.roundIndex === (S.baseRoundCount || 0)) {
-      addLog('endless', t('log.endless', { n: num((DATA.endless || {}).start_night, 6) }), '', 'good');
+      addLog('endless', t('log.endless', { n: num((DATA.endless || {}).start_night, 6) }), '', 'good',
+      () => t('log.endless', { n: num((DATA.endless || {}).start_night, 6) }));
     }
     startRound();
   }
@@ -2339,7 +2349,7 @@
     S.roundIndex += 1;
     if (S.roundIndex >= ROUNDS.length) extendEndless();
     S.phase = 'idle';
-    addLog('endless', t('log.endless', { n: S.night + 1 }), '', 'good');
+    addLog('endless', t('log.endless', { n: S.night + 1 }), '', 'good', () => t('log.endless', { n: S.night + 1 }));
     toast(t('endless.warning'));
     startRound();
   }
@@ -2495,7 +2505,8 @@
       S.progress.curseNullified = num(S.progress.curseNullified, 0) + 1;
       persistProgress();
       toast(t('toast.curseNullified', { name: nulledCurse }));
-      addLog('curseNullified', t('log.curseNullified', { name: curseName(S.mods.ids[0]) }), '', 'good');
+      addLog('curseNullified', t('log.curseNullified', { name: curseName(S.mods.ids[0]) }), '', 'good',
+        () => t('log.curseNullified', { name: curseName(S.mods.ids[0]) }));
       sfx('curse');
     } else if (type === 'gold_gain') {
       S.gold += num(charm.value, 0);
@@ -2551,7 +2562,8 @@
       () => {
         S.relics.splice(idx, 1);
         S.gold += price;
-        addLog('sell', t('log.sell', { name: dname(relic) }), '+' + price, 'good');
+        addLog('sell', t('log.sell', { name: dname(relic) }), '+' + price, 'good',
+          () => t('log.sell', { name: dname(relic) }));
         toast(t('toast.sold', { name: dname(relic), g: price }));
         sfx('coins', 2);
         renderAll();
@@ -2591,7 +2603,8 @@
     if (!a || achUnlocked(a)) return false;
     S.progress.unlocked[a.id] = new Date().toISOString();
     persistProgress();
-    addLog('achievement', t('log.achievement', { name: dname(a) }), '', 'good');
+    addLog('achievement', t('log.achievement', { name: dname(a) }), '', 'good',
+      () => t('log.achievement', { name: dname(a) }));
     zaToast(t('toast.achievement', { name: dname(a) }), a.icon);
     sfx('playAchievement');
     steamUnlock(a);
@@ -3033,7 +3046,9 @@
     S.log.slice(0, 12).forEach(item => {
       const row = el('div', 'log-row ' + (item.tone || ''));
       row.appendChild(el('span', 'lg-ic', item.icon || '·'));
-      row.appendChild(el('span', 'lg-t', item.text));
+      let label = item.text;
+      if (item.render) { try { label = item.render(); } catch (e) { label = item.text; } }
+      row.appendChild(el('span', 'lg-t', label));
       if (item.value) row.appendChild(el('span', 'lg-v', item.value));
       box.appendChild(row);
     });
@@ -3043,8 +3058,12 @@
     roundStart: '☾', score: '✦', clear: '❖', relic: '⚱', charm: '🜏', sell: '↩', curse: '☠', tax: '☠'
   };
 
-  function addLog(kind, text, value, tone) {
-    S.log.unshift({ kind: kind, text: text, value: value || '', tone: tone || '', icon: LOG_ICONS[kind] || '·' });
+  function addLog(kind, text, value, tone, render) {
+    S.log.unshift({
+      kind: kind, text: text, value: value || '', tone: tone || '',
+      icon: LOG_ICONS[kind] || '·',
+      render: (typeof render === 'function') ? render : null
+    });
     if (S.log.length > 40) S.log.length = 40;
     renderLog();
   }
@@ -3460,6 +3479,7 @@
     renderTitleProgress();
     renderAscensionPicker();
     if (S.shop) renderShop();
+    renderLog();
     say('round');
     refreshCodexModal();
     refreshAchievementModal();
