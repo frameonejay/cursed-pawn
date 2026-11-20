@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CURSED PAWN — viewport QA</title>
+<!--
+  QA 보조 페이지: 고정 크기 뷰포트에서 게임을 띄워 스크린샷을 찍는다.
+  사용: tools/qa/viewport.html?w=1280&h=800  /  ?w=390&h=844
+  (배포 빌드에는 포함되지 않는다 — package.json build.files 는 tools/ 를 제외한다)
+-->
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: #050403;
+    overflow: auto;
+  }
+  #frame { display: block; border: 0; background: #0a0705; }
+</style>
+</head>
+<body>
+<iframe id="frame" src="../../index.html" title="CURSED PAWN"></iframe>
+<script src="viewport.js"></script>
+</body>
+</html>

@@ -3416,7 +3416,7 @@
       desc.innerHTML = '';
       desc.appendChild(el('b', '', 'A' + S.ascension + ' · ' + dname(a)));
       desc.appendChild(el('span', '', ddesc(a)));
-      if (S.ascensionMax < 5) desc.appendChild(el('span', 'asc-unlock', t('ascension.unlockHint')));
+      if (S.ascensionMax < 5) desc.appendChild(el('span', 'asc-unlock', t('ascension.unlockHint', { n: S.ascensionMax, next: Math.min(5, S.ascensionMax + 1) })));
     }
   }
 
