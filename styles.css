@@ -1857,3 +1857,11 @@ kbd {
   .particle { display: none; }
   .sp-relic-row.pulse { animation: none; }
 }
+
+/* 아이콘 대비 보정: 컬러 이모지가 없는 폰트 환경에서도 황동 톤으로 보이게 */
+.relic-slot .slot-icon, .charm-slot .slot-icon {
+  color: var(--gold-hi);
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 8px rgba(246, 223, 168, 0.22));
+}
+.shop-card .sc-icon, .codex-card .cc-icon { color: var(--gold-hi); }
+.ach-card .ac-icon { color: var(--gold); }

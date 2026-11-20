@@ -3456,6 +3456,7 @@
     renderTitleProgress();
     renderAscensionPicker();
     if (S.shop) renderShop();
+    say('round');
     refreshCodexModal();
     refreshAchievementModal();
     if (S.lastResult && !$('overlay-result').classList.contains('hidden')) showResult(S.lastResult.won);
@@ -3928,6 +3929,7 @@
       applyI18n();
       buildRules();
       bindEvents();
+      say('round');
       renderTitleBest();
       renderTitleProgress();
       renderAscensionPicker();
