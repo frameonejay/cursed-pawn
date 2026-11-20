@@ -126,7 +126,7 @@ games/cursed-pawn/
 ├─ tools/balance_sim.py    밸런스 시뮬레이터 (승천 0~5 · 10빌드 · 2,400런)
 ├─ tools/build_fallback.py FALLBACK_DATA ↔ JSON 동기화 (--check)
 ├─ tools/package_steam.js  Steam depot 폴더 준비
-├─ tools/qa/               엔진 계약 회귀 테스트 (DOM 스텁)
+├─ tools/qa/               엔진 계약 회귀 테스트 (DOM 스텁) · viewport.html (고정 크기 QA 프레임)
 ├─ electron-main.js        Electron 엔트리 + steamworks.js 연동
 ├─ preload.js              contextBridge (Steam IPC)
 ├─ package.json            실행 · 테스트 · 패키징 스크립트
