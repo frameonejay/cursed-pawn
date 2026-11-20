@@ -2260,7 +2260,7 @@
     }
     S.shop.charms = charmOffers;
 
-    toast(free ? t('toast.freeReroll') : t('toast.shopReroll'));
+    toast(free ? t('toast.freeReroll') : t('toast.shopReroll', { c: cost }));
     sfx('reroll');
     renderShop();
     renderHUD();
@@ -2488,13 +2488,14 @@
         sfx('error');
         return;
       }
+      const nulledCurse = curseName(S.mods.ids[0]);
       S.curseNull = true;
       recomputeRoundRerolls();
       S.run.curseNull = (S.run.curseNull || 0) + 1;
       S.progress.curseNullified = num(S.progress.curseNullified, 0) + 1;
       persistProgress();
-      toast(t('toast.curseNullified'));
-      addLog('curseNullified', t('log.curseNullified'), '', 'good');
+      toast(t('toast.curseNullified', { name: nulledCurse }));
+      addLog('curseNullified', t('log.curseNullified', { name: curseName(S.mods.ids[0]) }), '', 'good');
       sfx('curse');
     } else if (type === 'gold_gain') {
       S.gold += num(charm.value, 0);
@@ -2740,7 +2741,7 @@
     if (scale) scale.classList.remove('hidden');
 
     const mods = activeMods();
-    if (S.curseNull) descBox.appendChild(el('div', 'boss-note good', t('toast.curseNullified')));
+    if (S.curseNull) descBox.appendChild(el('div', 'boss-note good', t('toast.curseNullified', { name: curseName(S.mods.ids[0]) })));
     else if (S.curseSoft) descBox.appendChild(el('div', 'boss-note', t('toast.curseSoftened', { name: curseName(S.mods.ids[0]) })));
     if (mods.minHandRank) descBox.appendChild(el('div', 'boss-note', t('toast.handLocked')));
     if (mods.firstRerollCost > 1) descBox.appendChild(el('div', 'boss-note', t('toast.firstRerollDouble')));
@@ -3003,7 +3004,7 @@
     bd.curseNotes.forEach(note => {
       box.appendChild(makeBdRow('curse', curseName(note.type), (note.delta > 0 ? '+' : '') + note.delta + ' (min 1)'));
     });
-    if (S.curseNull) box.appendChild(makeBdRow('curse', t('ui.curse'), t('toast.curseNullified')));
+    if (S.curseNull) box.appendChild(makeBdRow('curse', t('ui.curse'), t('toast.curseNullified', { name: curseName(S.mods.ids[0]) })));
     else if (S.curseSoft) box.appendChild(makeBdRow('curse', t('ui.curse'), t('toast.curseSoftened', { name: curseName(S.mods.ids[0]) })));
 
     box.appendChild(el('div', 'bd-sep'));
@@ -3400,9 +3401,9 @@
       chip.dataset.level = String(lv);
       chip.textContent = locked ? '🔒' : ('A' + lv);
       chip.disabled = locked;
-      chip.title = locked ? t('ascension.locked') : dname(ascensionDef(lv));
+      chip.title = locked ? t('ascension.locked', { level: lv }) : dname(ascensionDef(lv));
       chip.addEventListener('click', () => {
-        if (locked) { toast(t('ascension.locked'), true); sfx('error'); return; }
+        if (locked) { toast(t('ascension.locked', { level: lv }), true); sfx('error'); return; }
         S.ascension = lv;
         persistSettings();
         renderAscensionPicker();

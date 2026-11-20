@@ -267,6 +267,7 @@
       /* 도감 */
       'codex.title': '유물 도감',
       'codex.sub': '발견한 유물 {seen} / {total}',
+      'codex.hint': '수집한 유물 · 부적 · 보스 저주 · 승천 계약',
       'codex.relics': '유물',
       'codex.charms': '부적',
       'codex.curses': '보스 저주',
@@ -285,7 +286,8 @@
 
       /* 업적 */
       'ach.title': '업적',
-      'ach.sub': '{done} / {total} 달성',
+      'ach.sub': '전당포의 기록 — 달성할수록 계약서가 두꺼워집니다.',
+      'ach.progressShort': '{done} / {total} 달성',
       'ach.unlocked': '달성',
       'ach.locked': '미달성',
       'ach.progress': '진행 {value} / {target}',
@@ -744,6 +746,7 @@
       /* Codex */
       'codex.title': 'Relic Codex',
       'codex.sub': 'Relics discovered {seen} / {total}',
+      'codex.hint': 'Relics · Charms · Boss curses · Ascension contracts collected',
       'codex.relics': 'Relics',
       'codex.charms': 'Charms',
       'codex.curses': 'Boss Curses',
@@ -762,7 +765,8 @@
 
       /* Achievements */
       'ach.title': 'Achievements',
-      'ach.sub': '{done} / {total} unlocked',
+      'ach.sub': 'The pawnshop records — every achievement thickens the contract.',
+      'ach.progressShort': '{done} / {total} unlocked',
       'ach.unlocked': 'Unlocked',
       'ach.locked': 'Locked',
       'ach.progress': 'Progress {value} / {target}',
