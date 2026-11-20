@@ -1865,3 +1865,11 @@ kbd {
 }
 .shop-card .sc-icon, .codex-card .cc-icon { color: var(--gold-hi); }
 .ach-card .ac-icon { color: var(--gold); }
+
+/* 밤 트랙이 테이블 메시지에 밀려 잘리지 않도록 (모바일 390px 대응) */
+.night-track { flex: 0 0 auto; }
+.nt-pip { flex: 0 0 auto; }
+@media (max-width: 768px) {
+  .nt-pip { width: 12px; }
+  .night-track { gap: 3px; }
+}
