@@ -1,0 +1,65 @@
+{
+  "name": "cursed-pawn",
+  "productName": "CURSED PAWN",
+  "version": "0.1.0",
+  "description": "CURSED PAWN: 영혼 전당포 — a dark-fantasy dice roguelike deckbuilder. Pawn your soul, one roll at a time.",
+  "main": "electron-main.js",
+  "author": "Frame One Studio",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "serve": "python3 -m http.server 8080",
+    "dist": "electron-builder --win --x64",
+    "dist:dir": "electron-builder --dir",
+    "dist:all": "electron-builder -mwl"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "optionalDependencies": {
+    "steamworks.js": "^0.3.1"
+  },
+  "build": {
+    "appId": "com.frameone.cursedpawn",
+    "productName": "Cursed Pawn",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "index.html",
+      "styles.css",
+      "electron-main.js",
+      "preload.js",
+      "js/**/*",
+      "data/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Game"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.games"
+    }
+  }
+}

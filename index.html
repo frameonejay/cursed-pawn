@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0705">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; media-src 'self';">
+<title>CURSED PAWN — 영혼 전당포</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══════════════════════════ 타이틀 ══════════════════════════ -->
+  <section id="screen-title" class="screen is-active">
+    <div class="title-art">
+      <img src="assets/steam-capsule.png" alt="">
+      <div class="title-art-veil"></div>
+    </div>
+    <div class="title-grain"></div>
+
+    <div class="title-wrap">
+      <div class="title-kicker" data-i18n="title.kicker">A DICE ROGUELIKE DECKBUILDER</div>
+      <h1 class="title-logo">CURSED <span>PAWN</span></h1>
+      <div class="title-sub" data-i18n="title.sub">영혼 전당포</div>
+      <p class="title-tag" data-i18n="title.tag">영혼을 담보로, 주사위로 빚을 갚아라.<br>다섯 밤을 버티면 계약은 갱신된다.</p>
+
+      <div class="title-actions">
+        <button id="btn-start" class="btn btn-primary btn-lg">
+          <span class="btn-orn">✦</span>
+          <span data-i18n="title.start">계약서에 서명한다</span>
+        </button>
+        <button id="btn-title-rules" class="btn btn-ghost">
+          <span data-i18n="ui.rules">족보 · 룰북</span>
+        </button>
+      </div>
+
+      <div class="title-best" id="title-best"><!-- JS --></div>
+
+      <div class="title-tools">
+        <button id="btn-title-lang" class="chip-btn" title="Language">한국어 / EN</button>
+        <button id="btn-title-sound" class="chip-btn" title="Sound">♪ ON</button>
+        <span class="title-version">v0.1.0 · PROLOGUE BUILD</span>
+      </div>
+    </div>
+
+    <div class="title-dealer">
+      <div class="title-dealer-frame">
+        <img src="assets/dealer-portrait.png" alt="Madame Vesper">
+      </div>
+      <div class="title-dealer-quote" id="title-quote">“손님, 담보는 영혼이면 충분하네.”</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════ 게임 ══════════════════════════ -->
+  <section id="screen-game" class="screen">
+
+    <header id="hud">
+      <div class="hud-brand">
+        <span class="brand-mark">♠</span>
+        <span class="brand-text">CURSED <em>PAWN</em></span>
+      </div>
+
+      <div class="hud-night">
+        <span class="hud-label" data-i18n="hud.night">밤</span>
+        <b id="hud-night">1</b>
+        <span class="hud-slash">/</span>
+        <b class="hud-dim">5</b>
+        <span class="hud-dot">·</span>
+        <span id="hud-type" class="type-badge normal" data-i18n="type.normal">일반</span>
+        <span class="hud-dot">·</span>
+        <b id="hud-round">1</b>
+        <span class="hud-label" data-i18n="hud.roundSuffix">라운드</span>
+      </div>
+
+      <div class="hud-progress">
+        <div class="progress-labels">
+          <span class="hud-label" data-i18n="hud.score">정산 점수</span>
+          <span class="progress-nums"><b id="hud-score">0</b><span class="progress-sep">/</span><span id="hud-target">180</span></span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+          <div class="progress-shine" id="progress-shine"></div>
+        </div>
+      </div>
+
+      <div class="hud-stats">
+        <div class="stat" id="stat-hands" title="">
+          <span class="stat-ic">✋</span>
+          <span class="stat-body"><b id="hud-hands">3</b><small data-i18n="hud.hands">기회</small></span>
+        </div>
+        <div class="stat" id="stat-rerolls">
+          <span class="stat-ic">↻</span>
+          <span class="stat-body"><b id="hud-rerolls">2</b><small data-i18n="hud.rerolls">리롤</small></span>
+        </div>
+        <div class="stat stat-gold" id="stat-gold">
+          <span class="stat-ic coin">◎</span>
+          <span class="stat-body"><b id="hud-gold">0</b><small data-i18n="hud.gold">골드</small></span>
+        </div>
+      </div>
+
+      <div class="hud-tools">
+        <button id="btn-lang" class="icon-btn" title="Language / 언어">KO</button>
+        <button id="btn-sound" class="icon-btn" title="Sound / 사운드">♪</button>
+        <button id="btn-rules" class="icon-btn" title="Rulebook / 룰북">📖</button>
+      </div>
+    </header>
+
+    <main id="board">
+
+      <!-- ─────────── 좌측: 주인장 · 보스 저주 · 유물 ─────────── -->
+      <aside id="col-left">
+
+        <div class="panel dealer-panel">
+          <div class="dealer-photo">
+            <img src="assets/dealer-portrait.png" alt="">
+            <div class="dealer-photo-shade"></div>
+            <div class="dealer-nameplate">
+              <span class="dealer-title" data-i18n="dealer.title">전당포 주인</span>
+              <span class="dealer-name">MADAME VESPER</span>
+            </div>
+          </div>
+          <div class="dealer-line" id="dealer-line">“손님, 담보는 영혼이면 충분하네.”</div>
+        </div>
+
+        <div class="panel boss-panel hidden" id="boss-panel">
+          <div class="panel-head boss-head">
+            <span class="panel-ic">☠</span>
+            <span data-i18n="ui.curse">보스 저주</span>
+          </div>
+          <div class="boss-name" id="boss-name"></div>
+          <div class="boss-desc" id="boss-desc"></div>
+        </div>
+
+        <div class="panel reliquary">
+          <div class="panel-head">
+            <span class="panel-ic">⚱</span>
+            <span data-i18n="ui.relics">유물</span>
+            <em class="panel-count" id="relic-count">0 / 6</em>
+          </div>
+          <div class="slots relic-slots" id="relic-slots"></div>
+        </div>
+
+      </aside>
+
+      <!-- ─────────── 중앙: 테이블 · 주사위 · 족보 ─────────── -->
+      <section id="col-center">
+
+        <div id="table">
+          <div class="table-veil"></div>
+          <div class="table-inner">
+
+            <div class="table-top">
+              <div class="night-track" id="night-track"></div>
+              <div class="table-message" id="table-message"></div>
+            </div>
+
+            <div class="dice-stage" id="dice-stage"></div>
+
+            <div class="table-actions">
+              <button id="btn-roll" class="btn btn-roll">
+                <span class="btn-roll-main" id="btn-roll-label">굴리기</span>
+                <span class="btn-roll-sub" id="btn-roll-sub">SPACE</span>
+              </button>
+              <button id="btn-score" class="btn btn-score">
+                <span class="btn-score-main" id="btn-score-label">정산</span>
+                <span class="btn-score-sub" id="btn-score-sub">ENTER</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <div id="preview-panel">
+          <div class="preview-head">
+            <span class="preview-title" data-i18n="ui.preview">족보 미리보기</span>
+            <span class="preview-hint" id="preview-hint" data-i18n="ui.previewHint">클릭해 선택 · 유물 조건은 주사위 5개 기준</span>
+          </div>
+          <div id="hand-list" class="hand-list"></div>
+        </div>
+
+      </section>
+
+      <!-- ─────────── 우측: 정산 내역 · 부적 · 기록 ─────────── -->
+      <aside id="col-right">
+
+        <div class="panel breakdown-panel">
+          <div class="panel-head">
+            <span class="panel-ic">✒</span>
+            <span data-i18n="ui.breakdown">정산 내역</span>
+            <em class="panel-count" id="breakdown-total"></em>
+          </div>
+          <div id="breakdown" class="breakdown"></div>
+        </div>
+
+        <div class="panel charms-panel">
+          <div class="panel-head">
+            <span class="panel-ic">🜏</span>
+            <span data-i18n="ui.charms">부적</span>
+            <em class="panel-count" id="charm-count">0 / 3</em>
+          </div>
+          <div class="slots charm-slots" id="charm-slots"></div>
+          <div class="charms-hint" data-i18n="ui.charmsHint">클릭하면 즉시 발동합니다</div>
+        </div>
+
+        <div class="panel log-panel">
+          <div class="panel-head">
+            <span class="panel-ic">☰</span>
+            <span data-i18n="ui.log">기록</span>
+          </div>
+          <div id="log-list" class="log-list"></div>
+        </div>
+
+      </aside>
+
+    </main>
+  </section>
+
+  <!-- ══════════════════════════ 상점 ══════════════════════════ -->
+  <div id="overlay-shop" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="shop-modal">
+      <header class="shop-head">
+        <div class="shop-kicker" data-i18n="shop.kicker">CONTRACT FULFILLED</div>
+        <h2 id="shop-title">라운드 클리어</h2>
+        <div class="shop-reward" id="shop-reward"></div>
+        <div class="shop-gold-wrap">
+          <span class="coin">◎</span>
+          <b id="shop-gold">0</b>
+          <span class="hud-label" data-i18n="hud.gold">골드</span>
+        </div>
+      </header>
+
+      <div class="shop-body">
+        <section class="shop-section">
+          <h3><span class="panel-ic">⚱</span> <span data-i18n="shop.relics">유물 진열</span></h3>
+          <div id="shop-relics" class="shop-grid"></div>
+        </section>
+        <section class="shop-section">
+          <h3><span class="panel-ic">🜏</span> <span data-i18n="shop.charms">부적 진열</span></h3>
+          <div id="shop-charms" class="shop-grid shop-grid-charms"></div>
+        </section>
+      </div>
+
+      <footer class="shop-foot">
+        <button id="btn-shop-reroll" class="btn btn-ghost">
+          <span>↻</span> <span data-i18n="shop.reroll">진열 교체</span> <span class="cost">◎ 3</span>
+        </button>
+        <p class="shop-hint" id="shop-hint">유물 최대 6개 · 부적 최대 3개 보유</p>
+        <button id="btn-next-round" class="btn btn-primary">
+          <span id="btn-next-label" data-i18n="shop.next">다음 밤으로</span>
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ 결과 ══════════════════════════ -->
+  <div id="overlay-result" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="result-modal">
+      <div class="result-ornament" id="result-ornament">✦</div>
+      <h2 id="result-title">승리</h2>
+      <p id="result-sub"></p>
+      <div class="result-stats" id="result-stats"></div>
+      <div class="result-best" id="result-best"></div>
+      <div class="result-actions">
+        <button id="btn-restart" class="btn btn-primary" data-i18n="result.restart">새 계약서</button>
+        <button id="btn-result-title" class="btn btn-ghost" data-i18n="result.title">타이틀로</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ 룰북 ══════════════════════════ -->
+  <div id="modal-rules" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="rules-modal">
+      <header class="rules-head">
+        <h2 data-i18n="rules.title">족보 · 룰북</h2>
+        <button id="btn-close-rules" class="icon-btn">✕</button>
+      </header>
+      <div class="rules-body" id="rules-body">
+
+        <section class="rules-sec">
+          <h3 data-i18n="rules.loopTitle">코어 루프</h3>
+          <ol class="rules-list">
+            <li data-i18n="rules.loop1">주사위 5개를 굴리고, 남기고 싶은 주사위를 클릭해 HOLD 합니다.</li>
+            <li data-i18n="rules.loop2">리롤로 HOLD 하지 않은 주사위만 다시 굴립니다.</li>
+            <li data-i18n="rules.loop3">족보를 하나 선택하고 [정산]을 누르면 점수가 쌓입니다.</li>
+            <li data-i18n="rules.loop4">목표 점수에 도달하면 라운드 클리어 — 상점에서 유물과 부적을 삽니다.</li>
+            <li data-i18n="rules.loop5">한 밤은 3개의 라운드(일반 · 정예 · 보스)로 이루어지고, 보스는 저주를 겁니다.</li>
+          </ol>
+        </section>
+
+        <section class="rules-sec">
+          <h3 data-i18n="rules.formulaTitle">점수 공식</h3>
+          <div class="formula-box">
+            <span data-i18n="rules.formula">(기본 칩 + 주사위 합 + 유물 칩) × (기본 배수 + 유물 배수) × 유물 곱연산</span>
+          </div>
+          <p class="rules-note" data-i18n="rules.formulaNote">정산에 포함되는 주사위의 눈 합이 칩에 더해집니다. 유물 조건은 정산에 포함된 주사위를 기준으로 계산됩니다.</p>
+        </section>
+
+        <section class="rules-sec">
+          <h3 data-i18n="rules.handsTitle">족보표</h3>
+          <div class="rules-hands" id="rules-hands"></div>
+        </section>
+
+        <section class="rules-sec">
+          <h3 data-i18n="rules.curseTitle">보스 저주</h3>
+          <div class="rules-curses" id="rules-curses"></div>
+        </section>
+
+        <section class="rules-sec">
+          <h3 data-i18n="rules.condTitle">유물 조건 판정</h3>
+          <p class="rules-note" data-i18n="rules.condNote">짝수·홀수·6·1 조건은 주사위 5개 중 해당 눈금의 개수로 판정합니다.</p>
+          <div class="rules-conds" id="rules-conditions"></div>
+        </section>
+
+        <section class="rules-sec">
+          <h3 data-i18n="rules.effectTitle">유물 효과 종류</h3>
+          <ul class="rules-list">
+            <li data-i18n="rules.effectChips">+칩: 정산 칩에 더해집니다.</li>
+            <li data-i18n="rules.effectMult">+배수: 정산 배수에 더해집니다.</li>
+            <li data-i18n="rules.effectMul">×배수: 마지막에 배수를 곱합니다.</li>
+            <li data-i18n="rules.effectReroll">+리롤: 핸드마다 리롤이 늘어납니다.</li>
+            <li data-i18n="rules.effectHand">+핸드: 라운드마다 기회가 늘어납니다.</li>
+            <li data-i18n="rules.effectGold">+골드: 라운드 클리어 시 골드를 얻습니다.</li>
+          </ul>
+        </section>
+
+        <section class="rules-sec">
+          <h3 data-i18n="rules.controlsTitle">조작</h3>
+          <ul class="rules-list rules-keys">
+            <li><kbd>SPACE</kbd> <span data-i18n="rules.keyRoll">굴리기 / 리롤</span></li>
+            <li><kbd>1</kbd>–<kbd>5</kbd> <span data-i18n="rules.keyHold">주사위 HOLD</span></li>
+            <li><kbd>ENTER</kbd> <span data-i18n="rules.keyScore">선택한 족보로 정산</span></li>
+            <li><kbd>R</kbd> <span data-i18n="rules.keyRules">룰북 열기</span></li>
+            <li><kbd>M</kbd> <span data-i18n="rules.keySound">사운드 On/Off</span></li>
+          </ul>
+        </section>
+
+        <p class="rules-note rules-source" id="rules-source">데이터 소스</p>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ 확인 ══════════════════════════ -->
+  <div id="modal-confirm" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="confirm-modal">
+      <p id="confirm-text"></p>
+      <div class="confirm-actions">
+        <button id="btn-confirm-yes" class="btn btn-danger"></button>
+        <button id="btn-confirm-no" class="btn btn-ghost" data-i18n="ui.cancel">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ 연출 레이어 ══════════════════════════ -->
+  <div id="score-popup" class="score-popup hidden">
+    <div class="sp-hand">
+      <span class="sp-hand-name" id="sp-hand-name"></span>
+      <span class="sp-hand-tag" id="sp-hand-tag"></span>
+    </div>
+    <div class="sp-formula">
+      <div class="sp-chips">
+        <div class="sp-mini-label">CHIPS</div>
+        <div class="sp-chips-line">
+          <span id="sp-chips-base">0</span>
+          <span class="sp-plus" id="sp-chips-dice">+0</span>
+        </div>
+        <div class="sp-relic-chips" id="sp-relic-chips"></div>
+        <div class="sp-chips-total" id="sp-chips-total">0</div>
+      </div>
+      <div class="sp-x">×</div>
+      <div class="sp-mult">
+        <div class="sp-mini-label">MULT</div>
+        <div class="sp-mult-line">
+          <span id="sp-mult-base">1</span>
+          <span class="sp-plus" id="sp-mult-add"></span>
+        </div>
+        <div class="sp-relic-mults" id="sp-relic-mults"></div>
+        <div class="sp-mult-total" id="sp-mult-total">1</div>
+      </div>
+    </div>
+    <div class="sp-relic-rows" id="sp-relic-rows"></div>
+    <div class="sp-total" id="sp-total">= 0</div>
+  </div>
+
+  <div id="floaters" class="floaters"></div>
+  <div id="tooltip" class="tooltip hidden"></div>
+  <div id="toast" class="toast hidden"></div>
+
+</div>
+
+<script src="js/audio.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

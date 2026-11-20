@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+*.log
+steam_appid.txt
+.DS_Store
+Thumbs.db
+
+# 배포 패키지 · 임시 파일
+cursed-pawn.zip
+*.zip
+*.tmp
