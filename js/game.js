@@ -3286,6 +3286,9 @@
       }
     }
 
+    const actions = document.querySelector('#overlay-result .result-actions');
+    if (actions) actions.classList.toggle('hidden', !!S.endlessPending);
+
     $('overlay-result').classList.remove('hidden');
     if (S.endlessPending) sfx('playAchievement');
   }

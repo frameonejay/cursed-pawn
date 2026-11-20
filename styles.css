@@ -1526,7 +1526,7 @@ kbd {
   object-fit: cover; border-radius: 8px;
   border: 1px solid rgba(216, 171, 92, 0.28);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 22px rgba(158, 47, 39, 0.25);
-  filter: saturate(0.9) contrast(1.05);
+  filter: brightness(1.18) saturate(1.05) contrast(1.04);
 }
 .boss-text { flex: 1 1 auto; min-width: 0; }
 .boss-curse-row + .boss-curse-row { margin-top: 7px; padding-top: 7px; border-top: 1px dashed rgba(216, 171, 92, 0.18); }
