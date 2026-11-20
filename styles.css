@@ -1873,3 +1873,7 @@ kbd {
   .nt-pip { width: 12px; }
   .night-track { gap: 3px; }
 }
+
+/* 영어 HUD 어순: "ROUND 3" (한국어는 "3 라운드") */
+html[lang="en"] #hud-round { order: 2; }
+html[lang="en"] .hud-night > [data-i18n="hud.roundSuffix"] { order: 1; }
